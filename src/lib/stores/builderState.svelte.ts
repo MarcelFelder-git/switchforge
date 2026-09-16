@@ -33,6 +33,9 @@ export class BuilderState {
 	plateId = $state<string>(defaultSelection.plateId);
 	lightingId = $state<string>(defaultSelection.lightingId);
 	connectivityId = $state<string>(defaultSelection.connectivityId);
+	languageId = $state<string>(defaultSelection.languageId);
+	knobId = $state<string>(defaultSelection.knobId);
+	engraving = $state<string>(defaultSelection.engraving);
 
 	// --- Aufgelöste Katalogobjekte ---
 	private resolved: ResolvedBuild = $derived(resolveBuild(this.snapshot()));
@@ -57,6 +60,12 @@ export class BuilderState {
 	}
 	get connectivity() {
 		return this.resolved.connectivity;
+	}
+	get language() {
+		return this.resolved.language;
+	}
+	get knob() {
+		return this.resolved.knob;
 	}
 
 	// --- Pricing Engine: rechnet sich neu, sobald sich irgendeine ID ändert ---
@@ -87,6 +96,15 @@ export class BuilderState {
 	setConnectivity(id: string) {
 		this.connectivityId = id;
 	}
+	setLanguage(id: string) {
+		this.languageId = id;
+	}
+	setKnob(id: string) {
+		this.knobId = id;
+	}
+	setEngraving(text: string) {
+		this.engraving = text;
+	}
 
 	reset() {
 		this.load(defaultSelection);
@@ -101,7 +119,10 @@ export class BuilderState {
 			keycapSetId: this.keycapSetId,
 			plateId: this.plateId,
 			lightingId: this.lightingId,
-			connectivityId: this.connectivityId
+			connectivityId: this.connectivityId,
+			languageId: this.languageId,
+			knobId: this.knobId,
+			engraving: this.engraving
 		};
 	}
 
@@ -114,6 +135,9 @@ export class BuilderState {
 		this.plateId = config.plateId;
 		this.lightingId = config.lightingId;
 		this.connectivityId = config.connectivityId;
+		this.languageId = config.languageId;
+		this.knobId = config.knobId;
+		this.engraving = config.engraving;
 	}
 }
 

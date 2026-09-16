@@ -257,6 +257,49 @@ export const connectivityOptions: ConnectivityOption[] = [
 	}
 ];
 
+export interface LanguageOption {
+	id: 'en' | 'de';
+	name: string;
+	hint: string;
+}
+
+/** Beschriftung – kein Aufpreis, ändert nur die Legenden */
+export const languageOptions: LanguageOption[] = [
+	{ id: 'de', name: 'Deutsch', hint: 'QWERTZ · Ü Ö Ä ß' },
+	{ id: 'en', name: 'English', hint: 'QWERTY · US-ANSI' }
+];
+
+export interface KnobOption {
+	id: string;
+	name: string;
+	enabled: boolean;
+	priceDeltaCents: number;
+	description: string;
+}
+
+export const knobOptions: KnobOption[] = [
+	{
+		id: 'no-knob',
+		name: 'Ohne',
+		enabled: false,
+		priceDeltaCents: 0,
+		description: 'Cleane Oberkante.'
+	},
+	{
+		id: 'knob',
+		name: 'Knob',
+		enabled: true,
+		priceDeltaCents: 1900,
+		description: 'Gerändelter Drehregler oben rechts – Lautstärke, Scrollen, Zoom.'
+	}
+];
+
+/** Gravur: Aufpreis nur, wenn Text vorhanden */
+export const ENGRAVING_PRICE_CENTS = 900;
+export const ENGRAVING_MAX_LENGTH = 16;
+/** Buchstaben, Ziffern, Leerzeichen und ein paar Satzzeichen – kein Unicode-Wildwuchs */
+export const ENGRAVING_PATTERN = /^[\p{L}\p{N} .\-_'!&+#]*$/u;
+
 export const lightingOptions: LightingOption[] = [
 	{
 		id: 'no-light',
@@ -289,5 +332,8 @@ export const defaultSelection = {
 	keycapSetId: 'void',
 	plateId: 'aluminium',
 	lightingId: 'no-light',
-	connectivityId: 'wired'
+	connectivityId: 'wired',
+	languageId: 'de',
+	knobId: 'no-knob',
+	engraving: ''
 } as const;

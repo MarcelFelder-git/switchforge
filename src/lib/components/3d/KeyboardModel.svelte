@@ -12,7 +12,7 @@
 -->
 <script lang="ts">
 	import { T, useThrelte, useTask } from '@threlte/core';
-	import { interactivity } from '@threlte/extras';
+	import { interactivity, Text } from '@threlte/extras';
 	import {
 		MeshStandardMaterial,
 		MeshPhysicalMaterial,
@@ -22,8 +22,10 @@
 		SRGBColorSpace
 	} from 'three';
 	import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
+	import type { IntersectionEvent } from '@threlte/extras';
 	import { builder } from '$lib/stores/builderState.svelte';
-	import { layouts } from '$lib/data/layouts';
+	import { getLayout } from '$lib/data/layouts';
+	import fontUrl from '@fontsource/jetbrains-mono/files/jetbrains-mono-latin-500-normal.woff?url';
 	import Keycap from './Keycap.svelte';
 
 	interactivity();
@@ -36,9 +38,14 @@
 	const CASE_H = 0.85;
 	const PLATE_H = 0.06;
 
-	const layout = $derived(layouts[builder.baseKit.layout]);
-	const caseW = $derived(layout.width + CASE_MARGIN * 2);
+	const layout = $derived(getLayout(builder.baseKit.layout, builder.language.id));
+	const hasKnob = $derived(builder.knob.enabled);
+	// Knob braucht rechts 1.5u Platz – das Case wächst und rückt entsprechend
+	const KNOB_W = 1.5;
+	const extraW = $derived(hasKnob ? KNOB_W : 0);
+	const caseW = $derived(layout.width + CASE_MARGIN * 2 + extraW);
 	const caseD = $derived(layout.depth + CASE_MARGIN * 2);
+	const caseX = $derived(extraW / 2);
 
 	/**
 	 * Keycap-Profil: echte Caps sind oben schmaler als unten (Cherry-Profil).
@@ -171,22 +178,104 @@
 	const underglow = $derived(builder.keycapSet.colors.accent);
 	const backlightColor = $derived(lightingMode === 'white' ? '#fff3d6' : '#ffffff');
 
+	/**
+	 * Legenden-Kontrast pro Taste: helle Kappe → dunkle Schrift, dunkle Kappe →
+	 * helle Schrift. Entscheidet über die relative Luminanz der Kappenfarbe,
+	 * nicht pauschal pro Set – sonst verschwindet der Aufdruck auf Akzenttasten.
+	 */
+	function legendFor(bgHex: string, preferred: string): string {
+		const bg = new Color(bgHex);
+		const lum = 0.2126 * bg.r + 0.7152 * bg.g + 0.0722 * bg.b; // linear, wie Three sie hält
+		if (lum > 0.3) return '#16161a'; // helle Kappe
+		// dunkle Kappe: das Set-Legend nehmen, wenn es hell genug ist
+		const pref = new Color(preferred);
+		const prefLum = 0.2126 * pref.r + 0.7152 * pref.g + 0.0722 * pref.b;
+		return prefLum > 0.35 ? preferred : '#f4f4f5';
+	}
+
 	// Shine-Through: bei Beleuchtung leuchten die Legenden selbst.
 	// Color-Werte > 1 landen im HalfFloat-Buffer und werden vom Bloom erfasst.
-	const legendColor = $derived.by(() => {
-		if (lightingMode === 'none') return builder.keycapSet.colors.legend;
-		return new Color(backlightColor).multiplyScalar(2.4);
+	const glowLegend = $derived(
+		lightingMode === 'none' ? null : new Color(backlightColor).multiplyScalar(2.4)
+	);
+	const legendBase = $derived(
+		glowLegend ?? legendFor(builder.keycapSet.colors.base, builder.keycapSet.colors.legend)
+	);
+	const legendAccent = $derived(
+		glowLegend ?? legendFor(builder.keycapSet.colors.accent, builder.keycapSet.colors.legend)
+	);
+
+	// Knob: Klick dreht ihn um 30° – kleine Spielerei, die die Szene lebendig macht
+	let knobAngle = $state(0);
+	const knobMat = new MeshStandardMaterial({
+		color: '#b8bcc4',
+		roughness: 0.35,
+		metalness: 1,
+		flatShading: true // 24 Facetten → sieht gerändelt aus
 	});
+	// Gravur: dunkel auf hellem Case, hell auf dunklem – gleiche Regel wie Legenden
+	const engravingColor = $derived(legendFor(builder.caseColor.hex, '#ffffff'));
 
 	const wireless = $derived(builder.connectivity.mode === 'wireless');
 </script>
 
 <T.Group>
 	<!-- Gehäuse: Oberkante bei y=0, Tasten sitzen darauf -->
-	<T.Mesh geometry={caseGeometry} material={caseMat} position.y={-CASE_H / 2} receiveShadow />
+	<T.Mesh
+		geometry={caseGeometry}
+		material={caseMat}
+		position={[caseX, -CASE_H / 2, 0]}
+		receiveShadow
+	/>
+
+	{#if hasKnob}
+		<!-- Drehregler oben rechts, sitzt in einer flachen Mulde -->
+		<T.Group position={[layout.width / 2 + KNOB_W / 2 + 0.05, 0, -layout.depth / 2 + 0.55]}>
+			<T.Mesh position.y={-0.02}>
+				<T.CylinderGeometry args={[0.52, 0.52, 0.04, 32]} />
+				<T.MeshStandardMaterial color="#0a0a0c" roughness={0.8} />
+			</T.Mesh>
+			<T.Mesh
+				material={knobMat}
+				position.y={0.22}
+				rotation.y={knobAngle}
+				castShadow
+				onclick={(e: IntersectionEvent<MouseEvent>) => {
+					e.stopPropagation();
+					knobAngle += Math.PI / 6;
+				}}
+				onpointerenter={() => (document.body.style.cursor = 'pointer')}
+				onpointerleave={() => (document.body.style.cursor = 'auto')}
+			>
+				<T.CylinderGeometry args={[0.42, 0.44, 0.44, 24]} />
+			</T.Mesh>
+			<!-- Indikator-Kerbe, dreht mit -->
+			<T.Group rotation.y={knobAngle}>
+				<T.Mesh position={[0, 0.45, -0.3]}>
+					<T.BoxGeometry args={[0.05, 0.02, 0.16]} />
+					<T.MeshStandardMaterial color="#16161a" roughness={0.6} />
+				</T.Mesh>
+			</T.Group>
+		</T.Group>
+	{/if}
+
+	{#if builder.engraving}
+		<!-- Gravur auf der vorderen Case-Kante, rechts unten -->
+		<Text
+			text={builder.engraving}
+			font={fontUrl}
+			fontSize={0.2}
+			letterSpacing={0.12}
+			anchorX="right"
+			anchorY="middle"
+			color={engravingColor}
+			fillOpacity={0.6}
+			position={[caseX + caseW / 2 - 0.6, -CASE_H * 0.5, caseD / 2 + 0.002]}
+		/>
+	{/if}
 
 	<!-- USB-C-Port hinten mittig: dunkle Buchse mit Metallrahmen -->
-	<T.Group position={[0, -CASE_H * 0.45, -caseD / 2]}>
+	<T.Group position={[caseX, -CASE_H * 0.45, -caseD / 2]}>
 		<T.Mesh material={portRimMat} position.z={-0.01}>
 			<T.BoxGeometry args={[0.72, 0.3, 0.06]} />
 		</T.Mesh>
@@ -197,7 +286,7 @@
 
 	{#if wireless}
 		<!-- Wireless: Schiebeschalter hinten links + Dongle-Slot neben dem USB-Port -->
-		<T.Group position={[-caseW / 2 + 1.6, -CASE_H * 0.45, -caseD / 2]}>
+		<T.Group position={[caseX - caseW / 2 + 1.6, -CASE_H * 0.45, -caseD / 2]}>
 			<T.Mesh material={portMat} position.z={-0.01}>
 				<T.BoxGeometry args={[0.5, 0.18, 0.06]} />
 			</T.Mesh>
@@ -205,7 +294,7 @@
 				<T.BoxGeometry args={[0.18, 0.12, 0.06]} />
 			</T.Mesh>
 		</T.Group>
-		<T.Group position={[1.1, -CASE_H * 0.45, -caseD / 2]}>
+		<T.Group position={[caseX + 1.1, -CASE_H * 0.45, -caseD / 2]}>
 			<T.Mesh material={portMat} position.z={-0.01}>
 				<T.BoxGeometry args={[0.36, 0.14, 0.06]} />
 			</T.Mesh>
@@ -217,7 +306,7 @@
 		{#each [-1, 1] as sz (sz)}
 			<T.Mesh
 				material={footMat}
-				position={[sx * (caseW / 2 - 0.9), -CASE_H - 0.03, sz * (caseD / 2 - 0.6)]}
+				position={[caseX + sx * (caseW / 2 - 0.9), -CASE_H - 0.03, sz * (caseD / 2 - 0.6)]}
 			>
 				<T.CylinderGeometry args={[0.28, 0.28, 0.06, 16]} />
 			</T.Mesh>
@@ -241,7 +330,7 @@
 				def={key}
 				geometry={keyGeometries.get(key.w)!}
 				material={key.accent ? keyAccentMat : keyBaseMat}
-				{legendColor}
+				legendColor={key.accent ? legendAccent : legendBase}
 				height={KEY_H}
 				gap={GAP}
 			/>
@@ -249,7 +338,7 @@
 	</T.Group>
 
 	<!-- Underglow: leuchtender Streifen unter dem Case + Licht auf den Boden -->
-	<T.Mesh material={underglowMat} position.y={-CASE_H - 0.01} rotation.x={-Math.PI / 2}>
+	<T.Mesh material={underglowMat} position={[caseX, -CASE_H - 0.01, 0]} rotation.x={-Math.PI / 2}>
 		<T.PlaneGeometry args={[caseW + 0.16, caseD + 0.16]} />
 	</T.Mesh>
 	<T.PointLight

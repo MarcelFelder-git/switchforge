@@ -15,10 +15,15 @@
 import type { LayoutSize } from './catalog';
 // (nur Typ-Import → kein Laufzeit-Zyklus mit catalog.ts)
 
+export type KeyboardLanguage = 'de' | 'en';
+
 export interface KeyDef {
 	/** Eindeutig pro Layout, z. B. "r2-KeyA" */
 	id: string;
+	/** Aufdruck – Buchstabe, Wort oder Symbol (⌫, ⇧ …) */
 	label: string;
+	/** true → Label kommt aus der Symbol-Schrift (DejaVu-Subset), sonst JetBrains Mono */
+	symbol: boolean;
 	/** KeyboardEvent.code, für physisches Tippen */
 	code: string;
 	/** Breite in Units */
@@ -69,6 +74,52 @@ const CODE_BY_LABEL: Record<string, string> = {
 	'→': 'ArrowRight'
 };
 
+/**
+ * Anzeige-Labels pro Code. Symbole statt Wörter, wo es die Konvention ist
+ * (⌫ Backspace, ⏎ Enter …). Alles andere zeigt das Layout-Token als Text.
+ */
+const DISPLAY: Record<string, string> = {
+	Backspace: '⌫',
+	Enter: '⏎',
+	Tab: '⇥',
+	CapsLock: '⇪',
+	ShiftLeft: '⇧',
+	ShiftRight: '⇧',
+	MetaLeft: '⊞',
+	MetaRight: '⊞',
+	ContextMenu: '☰',
+	Delete: '⌦',
+	PageUp: '⇞',
+	PageDown: '⇟',
+	Home: '↖',
+	End: '↘',
+	ArrowUp: '↑',
+	ArrowDown: '↓',
+	ArrowLeft: '←',
+	ArrowRight: '→'
+};
+const SYMBOLS = new Set(Object.values(DISPLAY));
+
+/**
+ * Deutsche Beschriftung (QWERTZ) für dieselben physischen Positionen.
+ * KeyboardEvent.code ist positionsbezogen: Wer auf einer deutschen Tastatur
+ * "Z" drückt, erzeugt code "KeyY" – und genau diese Taste ist hier mit "Z"
+ * beschriftet. Physisches Tippen stimmt also in beiden Sprachen.
+ */
+const DE_LABELS: Record<string, string> = {
+	KeyY: 'Z',
+	KeyZ: 'Y',
+	BracketLeft: 'Ü',
+	BracketRight: '+',
+	Semicolon: 'Ö',
+	Quote: 'Ä',
+	Backslash: '#',
+	Minus: 'ß',
+	Equal: '´',
+	Backquote: '^',
+	Slash: '-'
+};
+
 const ACCENT_CODES = new Set([
 	'Escape',
 	'Backspace',
@@ -99,7 +150,7 @@ interface RowSpec {
 	gapBefore?: number;
 }
 
-function buildLayout(size: LayoutSize, rows: RowSpec[]): KeyboardLayout {
+function buildLayout(size: LayoutSize, rows: RowSpec[], lang: KeyboardLanguage): KeyboardLayout {
 	const keys: KeyDef[] = [];
 	let z = 0;
 	let width = 0;
@@ -114,11 +165,13 @@ function buildLayout(size: LayoutSize, rows: RowSpec[]): KeyboardLayout {
 			}
 			const [head, wRaw] = token.split(':');
 			const w = wRaw ? Number(wRaw) : 1;
-			const [label, codeOverride] = head.split('=');
-			const code = codeOverride ?? codeFor(label);
+			const [name, codeOverride] = head.split('=');
+			const code = codeOverride ?? codeFor(name);
+			const label = DISPLAY[code] ?? (lang === 'de' ? (DE_LABELS[code] ?? name) : name);
 			keys.push({
 				id: `r${rowIndex}-${code}`,
 				label,
+				symbol: SYMBOLS.has(label),
 				code,
 				w,
 				x: x + w / 2,
@@ -151,8 +204,8 @@ const ROW_Z = '⇧=ShiftLeft:2.25 Z X C V B N M , . /';
 const ROW_BOTTOM_65 =
 	'Ctrl=ControlLeft:1.25 Win:1.25 Alt=AltLeft:1.25 Space:6.25 Alt=AltRight:1.25 Fn:1.25 _0.5 ← ↓ →';
 
-export const layouts: Record<LayoutSize, KeyboardLayout> = {
-	'60%': buildLayout('60%', [
+const ROWS: Record<LayoutSize, RowSpec[]> = {
+	'60%': [
 		{ keys: ROW_NUM },
 		{ keys: ROW_Q },
 		{ keys: ROW_A },
@@ -160,27 +213,27 @@ export const layouts: Record<LayoutSize, KeyboardLayout> = {
 		{
 			keys: 'Ctrl=ControlLeft:1.25 Win:1.25 Alt=AltLeft:1.25 Space:6.25 Alt=AltRight:1.25 Fn:1.25 Menu:1.25 Ctrl=ControlRight:1.25'
 		}
-	]),
+	],
 
-	'65%': buildLayout('65%', [
+	'65%': [
 		{ keys: `${ROW_NUM} Del` },
 		{ keys: `${ROW_Q} PgUp` },
 		{ keys: `${ROW_A} PgDn` },
 		{ keys: `${ROW_Z} ⇧=ShiftRight:1.75 ↑ End` },
 		// 1.25er Alt/Fn + 0.5u Lücke → ↓ sitzt exakt unter ↑ (invertiertes T wie beim TKL)
 		{ keys: `${ROW_BOTTOM_65}` }
-	]),
+	],
 
-	'75%': buildLayout('75%', [
+	'75%': [
 		{ keys: 'Esc F1 F2 F3 F4 F5 F6 F7 F8 F9 F10 F11 F12 PrtSc Pause Del' },
 		{ keys: `${ROW_NUM_TILDE} Home`, gapBefore: 0.25 },
 		{ keys: `${ROW_Q} PgUp` },
 		{ keys: `${ROW_A} PgDn` },
 		{ keys: `${ROW_Z} ⇧=ShiftRight:1.75 ↑ End` },
 		{ keys: `${ROW_BOTTOM_65}` }
-	]),
+	],
 
-	TKL: buildLayout('TKL', [
+	TKL: [
 		{
 			keys: 'Esc _1 F1 F2 F3 F4 _0.5 F5 F6 F7 F8 _0.5 F9 F10 F11 F12 _0.25 PrtSc ScrLk Pause'
 		},
@@ -191,9 +244,22 @@ export const layouts: Record<LayoutSize, KeyboardLayout> = {
 		{
 			keys: 'Ctrl=ControlLeft:1.25 Win:1.25 Alt=AltLeft:1.25 Space:6.25 Alt=AltRight:1.25 Win=MetaRight:1.25 Menu:1.25 Ctrl=ControlRight:1.25 _0.25 ← ↓ →'
 		}
-	])
+	]
 };
 
+const cache = new Map<string, KeyboardLayout>();
+
+/** Layout für Grösse + Sprache, einmal gebaut und gecacht */
+export function getLayout(size: LayoutSize, lang: KeyboardLanguage = 'en'): KeyboardLayout {
+	const key = `${size}:${lang}`;
+	let layout = cache.get(key);
+	if (!layout) {
+		layout = buildLayout(size, ROWS[size], lang);
+		cache.set(key, layout);
+	}
+	return layout;
+}
+
 export function keyCount(size: LayoutSize): number {
-	return layouts[size].keys.length;
+	return getLayout(size).keys.length;
 }

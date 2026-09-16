@@ -7,7 +7,7 @@
 	import { T, useThrelte } from '@threlte/core';
 	import { OrbitControls } from '@threlte/extras';
 	import { builder } from '$lib/stores/builderState.svelte';
-	import { layouts } from '$lib/data/layouts';
+	import { getLayout } from '$lib/data/layouts';
 
 	const FOV = 32;
 	/** Luft links/rechts, damit das Case nicht am Rand klebt */
@@ -17,7 +17,9 @@
 
 	const { size } = useThrelte();
 
-	const width = $derived(layouts[builder.baseKit.layout].width);
+	const width = $derived(
+		getLayout(builder.baseKit.layout, builder.language.id).width + (builder.knob.enabled ? 1.5 : 0)
+	);
 	const aspect = $derived($size.height > 0 ? $size.width / $size.height : 1.5);
 
 	// Sichtbare Breite bei Distanz d: 2 · d · tan(fov/2) · aspect

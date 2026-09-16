@@ -16,8 +16,13 @@
 		plateOptions,
 		lightingOptions,
 		connectivityOptions,
+		languageOptions,
+		knobOptions,
+		ENGRAVING_MAX_LENGTH,
+		ENGRAVING_PRICE_CENTS,
 		type SwitchType
 	} from '$lib/data/catalog';
+	import { sanitizeEngraving } from '$lib/pricing';
 	import { cn } from '$lib/utils';
 
 	const option =
@@ -67,8 +72,26 @@
 				</button>
 			{/each}
 		</div>
+		<!-- Beschriftung: gleiche physische Tasten, andere Legenden -->
+		<div class="mt-2 flex gap-2">
+			{#each languageOptions as lang (lang.id)}
+				<button
+					class={cn(option, 'flex-1 px-3 py-2', builder.languageId === lang.id ? active : idle)}
+					aria-pressed={builder.languageId === lang.id}
+					onclick={() => builder.setLanguage(lang.id)}
+				>
+					<span class="block text-sm font-medium text-ink">{lang.name}</span>
+					<span class="block truncate font-mono text-[10px] text-ink-muted">{lang.hint}</span>
+				</button>
+			{/each}
+		</div>
 	{/snippet}
-	{@render section('01', 'Base Kit', builder.baseKit.name, baseKitBody)}
+	{@render section(
+		'01',
+		'Base Kit',
+		`${builder.baseKit.name} · ${builder.language.name}`,
+		baseKitBody
+	)}
 
 	{#snippet caseBody()}
 		<div class="flex flex-wrap gap-2.5">
@@ -225,4 +248,50 @@
 		<p class="mt-2 font-mono text-[10px] text-ink-faint">{builder.connectivity.description}</p>
 	{/snippet}
 	{@render section('07', 'Connectivity', builder.connectivity.name, connectivityBody)}
+
+	{#snippet extrasBody()}
+		<div class="grid grid-cols-2 gap-2">
+			{#each knobOptions as knob (knob.id)}
+				<button
+					class={cn(option, 'px-3 py-2.5', builder.knobId === knob.id ? active : idle)}
+					aria-pressed={builder.knobId === knob.id}
+					onclick={() => builder.setKnob(knob.id)}
+				>
+					<span class="block text-sm font-medium text-ink">{knob.name}</span>
+					<span class="block font-mono text-[10px] text-ink-muted"
+						>{delta(knob.priceDeltaCents)}</span
+					>
+				</button>
+			{/each}
+		</div>
+		<p class="mt-2 font-mono text-[10px] text-ink-faint">{builder.knob.description}</p>
+
+		<label class="mt-4 block">
+			<span class="mb-1.5 flex items-baseline justify-between">
+				<span class="font-mono text-[10px] tracking-[0.15em] text-ink-muted uppercase">Gravur</span>
+				<span class="font-mono text-[10px] text-ink-faint">
+					{builder.engraving.length}/{ENGRAVING_MAX_LENGTH} · {delta(ENGRAVING_PRICE_CENTS)}
+				</span>
+			</span>
+			<input
+				type="text"
+				maxlength={ENGRAVING_MAX_LENGTH}
+				placeholder="z. B. dein Name"
+				value={builder.engraving}
+				oninput={(e) => builder.setEngraving(sanitizeEngraving(e.currentTarget.value))}
+				class="w-full rounded-panel border border-line bg-void/60 px-3 py-2 font-mono text-sm tracking-[0.12em] text-ink uppercase placeholder:tracking-normal placeholder:text-ink-faint placeholder:normal-case focus:border-neon focus:ring-2 focus:ring-ring/40 focus:outline-none"
+			/>
+		</label>
+		<p class="mt-1.5 font-mono text-[10px] text-ink-faint">
+			Lasergraviert auf der vorderen Case-Kante. Buchstaben, Ziffern, . - _ ! &
+		</p>
+	{/snippet}
+	{@render section(
+		'08',
+		'Extras',
+		[builder.knob.enabled ? 'Knob' : null, builder.engraving ? `"${builder.engraving}"` : null]
+			.filter(Boolean)
+			.join(' · ') || '–',
+		extrasBody
+	)}
 </div>

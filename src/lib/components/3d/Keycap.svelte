@@ -12,6 +12,8 @@
 	import type { KeyDef } from '$lib/data/layouts';
 	import { keypress } from '$lib/stores/keypress.svelte';
 	import fontUrl from '@fontsource/jetbrains-mono/files/jetbrains-mono-latin-500-normal.woff?url';
+	// DejaVu-Subset (4 KB) nur für ⌫ ⏎ ⇧ ← → … – JetBrains Mono hat die nicht
+	const symbolFontUrl = '/fonts/legend-symbols.woff';
 
 	interface Props {
 		def: KeyDef;
@@ -32,8 +34,8 @@
 	const pressed = $derived(keypress.pressed.has(def.id));
 	const y = $derived(height / 2 + (pressed ? -TRAVEL : 0));
 
-	// Kurze Labels gross (Buchstaben), lange klein (Enter, Bksp, PgUp)
-	const fontSize = $derived(def.label.length <= 1 ? 0.24 : 0.14);
+	// Buchstaben und Symbole gross, Wörter (Esc, Ctrl, F12) klein
+	const fontSize = $derived(def.symbol ? 0.26 : def.label.length <= 1 ? 0.24 : 0.14);
 	const showLegend = $derived(def.code !== 'Space');
 
 	function setCursor(cursor: string) {
@@ -62,7 +64,7 @@
 	{#if showLegend}
 		<Text
 			text={def.label}
-			font={fontUrl}
+			font={def.symbol ? symbolFontUrl : fontUrl}
 			{fontSize}
 			color={legendColor}
 			anchorX="left"

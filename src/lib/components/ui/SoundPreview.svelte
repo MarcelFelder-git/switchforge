@@ -7,7 +7,7 @@
 	import { builder } from '$lib/stores/builderState.svelte';
 	import { keypress } from '$lib/stores/keypress.svelte';
 	import { soundEngine } from '$lib/audio/soundEngine';
-	import { layouts } from '$lib/data/layouts';
+	import { getLayout } from '$lib/data/layouts';
 	import { Button } from '$lib/components/ui/button';
 	import { Slider } from '$lib/components/ui/slider';
 	import Volume2 from '@lucide/svelte/icons/volume-2';
@@ -26,7 +26,7 @@
 
 	// Probe-Anschlag: tippt "F" und "J" nacheinander im 3D-Modell
 	function sample() {
-		const keys = layouts[builder.baseKit.layout].keys;
+		const keys = getLayout(builder.baseKit.layout, builder.language.id).keys;
 		const f = keys.find((k) => k.code === 'KeyF');
 		const j = keys.find((k) => k.code === 'KeyJ');
 		if (f) keypress.tap(f.id);
@@ -37,7 +37,7 @@
 <section class="flex flex-col gap-3 border-t border-line/70 pt-5">
 	<header class="flex items-baseline justify-between gap-3">
 		<h3 class="font-mono text-[11px] tracking-[0.2em] text-ink-faint uppercase">
-			<span class="text-neon/80">08</span> / Sound
+			<span class="text-neon/80">09</span> / Sound
 		</h3>
 		<span class="font-mono text-[11px] text-ink-muted">
 			{keypress.strokes > 0 ? `${keypress.strokes} Anschläge` : 'Tipp auf deiner Tastatur'}

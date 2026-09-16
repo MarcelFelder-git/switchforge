@@ -17,7 +17,9 @@ Deploy: Vercel Hobby (adapter-vercel), Stripe Test-Modus, keine Datenbank. Null 
 - **State über `builder`** (`src/lib/stores/builderState.svelte.ts`): Komponenten lesen `$derived`-Felder und schreiben nur über die Setter. Der State ist eine Klasse mit Runes; kein `writable()`.
 - **Serialisierung über `builder.snapshot()`/`load()`** – IDs, keine Objekte. Server rechnet Preise aus IDs neu, nie aus Client-Werten.
 - **`$lib/server/*` nur serverseitig** importieren (Stripe-Secret).
-- **Layouts sind Daten** (`src/lib/data/layouts.ts`, Mini-DSL pro Reihe). `keyCount` im Katalog wird daraus abgeleitet, nie hartcodiert.
+- **Layouts sind Daten** (`src/lib/data/layouts.ts`, Mini-DSL pro Reihe, `getLayout(size, lang)` gecacht). `keyCount` im Katalog wird daraus abgeleitet, nie hartcodiert. DE/EN ändert nur Labels, Codes bleiben physisch.
+- **Legenden-Fonts**: JetBrains Mono (Latin) für Text, `static/fonts/legend-symbols.woff` (DejaVu-Subset, 4 KB) für ⌫ ⏎ ⇧ ← →. Neue Symbole → Subset neu bauen (fonttools, siehe Git-History).
+- **Legenden-Kontrast** per Luminanz der Kappenfarbe (`legendFor()` in KeyboardModel) – nie pauschal pro Set.
 - **Tastendruck ≠ Konfiguration**: `keypress.svelte.ts` (SvelteSet, Sound) ist vom `builder` getrennt, damit Tippen keinen Preis-Recompute auslöst.
 - **3D**: geteilte Geometrien pro Keycap-Breite (konisch verjüngt), geteilte Materialien, Farben per `$effect` → `material.color.set()`. Kein GLTF, alles prozedural. Kamera-Distanz aus Layout-Breite + Canvas-Aspect (`SceneCamera.svelte`). Bloom + Neutral-Tonemapping in `PostProcessing.svelte` (`postprocessing`-Lib, HalfFloat-Buffer, Threshold 1.0 → nur Emissive/Legenden > 1 glühen).
 - **Sound**: `/static/audio/*.mp3` optional, sonst prozedurale Synthese (`synth.ts`: Impuls → Bandpass-Resonatoren + Thud, gerendert per OfflineAudioContext). Profile-Parameter oben in der Datei.

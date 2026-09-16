@@ -7,10 +7,12 @@
 <script lang="ts">
 	import { builder } from '$lib/stores/builderState.svelte';
 	import { keypress } from '$lib/stores/keypress.svelte';
-	import { layouts } from '$lib/data/layouts';
+	import { getLayout } from '$lib/data/layouts';
 
 	// code → id für das aktuelle Layout
-	const byCode = $derived(new Map(layouts[builder.baseKit.layout].keys.map((k) => [k.code, k.id])));
+	const byCode = $derived(
+		new Map(getLayout(builder.baseKit.layout, builder.language.id).keys.map((k) => [k.code, k.id]))
+	);
 
 	function isTyping(target: EventTarget | null) {
 		const el = target as HTMLElement | null;

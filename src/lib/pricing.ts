@@ -14,13 +14,20 @@ import {
 	plateOptions,
 	lightingOptions,
 	connectivityOptions,
+	languageOptions,
+	knobOptions,
+	ENGRAVING_PRICE_CENTS,
+	ENGRAVING_MAX_LENGTH,
+	ENGRAVING_PATTERN,
 	type BaseKit,
 	type CaseColor,
 	type SwitchOption,
 	type KeycapSet,
 	type PlateOption,
 	type LightingOption,
-	type ConnectivityOption
+	type ConnectivityOption,
+	type LanguageOption,
+	type KnobOption
 } from '$lib/data/catalog';
 
 /** Serialisierbarer Snapshot – wandert in den Cart und zu Stripe */
@@ -32,6 +39,10 @@ export interface BuildConfig {
 	plateId: string;
 	lightingId: string;
 	connectivityId: string;
+	languageId: string;
+	knobId: string;
+	/** Freitext, max. ENGRAVING_MAX_LENGTH Zeichen, leer = keine Gravur */
+	engraving: string;
 }
 
 export interface ResolvedBuild {
@@ -42,6 +53,9 @@ export interface ResolvedBuild {
 	plate: PlateOption;
 	lighting: LightingOption;
 	connectivity: ConnectivityOption;
+	language: LanguageOption;
+	knob: KnobOption;
+	engraving: string;
 }
 
 export interface PriceBreakdown {
@@ -52,6 +66,8 @@ export interface PriceBreakdown {
 	plate: number;
 	lighting: number;
 	connectivity: number;
+	knob: number;
+	engraving: number;
 	total: number;
 }
 
@@ -70,8 +86,18 @@ export function resolveBuild(config: BuildConfig): ResolvedBuild {
 		keycapSet: findOrFallback(keycapSets, config.keycapSetId),
 		plate: findOrFallback(plateOptions, config.plateId),
 		lighting: findOrFallback(lightingOptions, config.lightingId),
-		connectivity: findOrFallback(connectivityOptions, config.connectivityId)
+		connectivity: findOrFallback(connectivityOptions, config.connectivityId),
+		language: findOrFallback(languageOptions, config.languageId),
+		knob: findOrFallback(knobOptions, config.knobId),
+		engraving: sanitizeEngraving(config.engraving)
 	};
+}
+
+/** Entfernt unerlaubte Zeichen und kürzt – tolerant, damit Tippen nicht "springt" */
+export function sanitizeEngraving(text: unknown): string {
+	if (typeof text !== 'string') return '';
+	const cleaned = text.replace(/[^\p{L}\p{N} .\-_'!&+#]/gu, '').slice(0, ENGRAVING_MAX_LENGTH);
+	return cleaned.trim() ? cleaned : '';
 }
 
 /** Strenge Variante für den Server: unbekannte IDs sind ein Fehler, kein Fallback */
@@ -87,7 +113,12 @@ export function isValidConfig(config: unknown): config is BuildConfig {
 		has(keycapSets, c.keycapSetId) &&
 		has(plateOptions, c.plateId) &&
 		has(lightingOptions, c.lightingId) &&
-		has(connectivityOptions, c.connectivityId)
+		has(connectivityOptions, c.connectivityId) &&
+		has(languageOptions, c.languageId) &&
+		has(knobOptions, c.knobId) &&
+		typeof c.engraving === 'string' &&
+		c.engraving.length <= ENGRAVING_MAX_LENGTH &&
+		ENGRAVING_PATTERN.test(c.engraving)
 	);
 }
 
@@ -100,6 +131,8 @@ export function computePrice(build: ResolvedBuild): PriceBreakdown {
 	const plate = build.plate.priceDeltaCents;
 	const lighting = build.lighting.priceDeltaCents;
 	const connectivity = build.connectivity.priceDeltaCents;
+	const knob = build.knob.priceDeltaCents;
+	const engraving = build.engraving ? ENGRAVING_PRICE_CENTS : 0;
 	return {
 		baseKit,
 		caseColor,
@@ -108,7 +141,10 @@ export function computePrice(build: ResolvedBuild): PriceBreakdown {
 		plate,
 		lighting,
 		connectivity,
-		total: baseKit + caseColor + switches + keycaps + plate + lighting + connectivity
+		knob,
+		engraving,
+		total:
+			baseKit + caseColor + switches + keycaps + plate + lighting + connectivity + knob + engraving
 	};
 }
 
@@ -126,6 +162,11 @@ export function buildDescription(build: ResolvedBuild): string {
 		`Keycaps ${build.keycapSet.name} ${build.keycapSet.material}`,
 		`${build.plate.name}-Plate`,
 		`Lighting ${build.lighting.name}`,
-		build.connectivity.name
-	].join(' · ');
+		build.connectivity.name,
+		`Layout ${build.language.name}`,
+		build.knob.enabled ? 'Knob' : null,
+		build.engraving ? `Gravur "${build.engraving}"` : null
+	]
+		.filter(Boolean)
+		.join(' · ');
 }
