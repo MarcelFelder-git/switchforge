@@ -48,10 +48,10 @@
 <Sheet.Root bind:open={cart.open}>
 	<Sheet.Content side="right" class="border-line bg-surface sm:max-w-md">
 		<Sheet.Header>
-			<Sheet.Title class="font-mono text-sm tracking-[0.2em] uppercase">
+			<Sheet.Title class="font-display text-lg font-bold">
 				Cart
 				{#if cart.count > 0}
-					<span class="ml-2 text-neon">{cart.count}</span>
+					<span class="ml-2 text-ember">{cart.count}</span>
 				{/if}
 			</Sheet.Title>
 			<Sheet.Description class="font-mono text-[11px] text-ink-faint">
@@ -161,7 +161,7 @@
 			<Sheet.Footer class="border-t border-line">
 				<div class="flex items-baseline justify-between">
 					<span class="font-mono text-[10px] tracking-[0.2em] text-ink-faint uppercase">Total</span>
-					<span class="font-mono text-xl text-acid" style="text-shadow: var(--shadow-glow-acid)">
+					<span class="text-brand font-display text-xl font-extrabold">
 						{formatPrice(cart.totalCents)}
 					</span>
 				</div>
@@ -173,10 +173,14 @@
 						{errorMsg}
 					</p>
 				{/if}
-				<Button size="lg" class="w-full shadow-glow" disabled={checkingOut} onclick={checkout}>
+				<button
+					class="inline-flex h-11 w-full items-center justify-center gap-2 rounded-full bg-brand text-sm font-semibold text-void shadow-[0_0_24px_oklch(0.72_0.2_20/0.4)] transition-transform hover:scale-[1.02] disabled:opacity-60 disabled:hover:scale-100"
+					disabled={checkingOut}
+					onclick={checkout}
+				>
 					{checkingOut ? 'Weiter zu Stripe …' : 'Zur Kasse'}
-					<ArrowRight data-icon="inline-end" />
-				</Button>
+					<ArrowRight class="size-4" />
+				</button>
 			</Sheet.Footer>
 		{/if}
 	</Sheet.Content>

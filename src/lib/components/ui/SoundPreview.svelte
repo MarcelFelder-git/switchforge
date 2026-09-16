@@ -37,7 +37,7 @@
 <section class="flex flex-col gap-3 border-t border-line/70 pt-5">
 	<header class="flex items-baseline justify-between gap-3">
 		<h3 class="font-mono text-[11px] tracking-[0.2em] text-ink-faint uppercase">
-			<span class="text-neon/80">09</span> / Sound
+			<span class="text-ember">09</span> / Sound
 		</h3>
 		<span class="font-mono text-[11px] text-ink-muted">
 			{keypress.strokes > 0 ? `${keypress.strokes} Anschläge` : 'Tipp auf deiner Tastatur'}
@@ -47,7 +47,7 @@
 	<div class="flex items-center gap-2">
 		<Button
 			variant="outline"
-			class="flex-1 justify-between hover:border-acid hover:text-acid"
+			class="flex-1 justify-between hover:border-ember hover:text-ember"
 			onclick={sample}
 		>
 			<span class="text-sm">▶ Probe-Anschlag</span>

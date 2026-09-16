@@ -33,7 +33,7 @@
 		<SiteHeader compact />
 	</div>
 
-	<main class="relative min-h-[55vh] bg-void">
+	<main class="relative min-h-[55vh]">
 		{#await scenePromise}
 			<!-- Poster, bis Three.js da ist -->
 			<div class="flex h-full w-full items-center justify-center scanlines">
@@ -42,7 +42,7 @@
 				</span>
 			</div>
 		{:then { default: Scene }}
-			<Scene />
+			<Scene transparent />
 		{/await}
 		<div
 			class="pointer-events-none absolute bottom-4 left-4 font-mono text-[10px] tracking-widest text-ink-faint uppercase"
@@ -51,7 +51,9 @@
 		</div>
 	</main>
 
-	<aside class="flex flex-col gap-5 border-l border-line metallic p-6 lg:overflow-y-auto">
+	<aside
+		class="flex flex-col gap-5 border-l border-line bg-surface/40 p-6 backdrop-blur-md lg:overflow-y-auto"
+	>
 		<ConfiguratorPanel />
 		<SoundPreview />
 		<PriceSummary onAddToCart={addToCart} />

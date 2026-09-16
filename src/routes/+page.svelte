@@ -142,7 +142,7 @@
 					<div class="relative p-5">
 						<div class="flex items-baseline justify-between gap-3">
 							<h3 class="font-display text-xl font-bold text-ink">{preset.name}</h3>
-							<span class="font-mono text-sm text-acid">{formatPrice(preset.price)}</span>
+							<span class="font-mono text-sm text-ink">{formatPrice(preset.price)}</span>
 						</div>
 						<p class="mt-1 text-sm text-ink-muted">{preset.tagline}</p>
 						<p class="mt-3 font-mono text-[10px] tracking-wide text-ink-faint">
@@ -373,7 +373,7 @@ const price = computePrice(build)    // Integer-Cent`}</code
 		<div
 			class="mx-auto flex max-w-7xl flex-col gap-3 px-6 py-8 font-mono text-[10px] tracking-[0.15em] text-ink-faint uppercase sm:flex-row sm:items-center sm:justify-between"
 		>
-			<span>Switch<span class="text-neon">Forge</span> · Portfolio-Projekt</span>
+			<span>Switch<span class="text-brand">Forge</span> · Portfolio-Projekt</span>
 			<span>Demo-Shop · Stripe Test-Modus · Es wird nichts berechnet</span>
 		</div>
 	</footer>

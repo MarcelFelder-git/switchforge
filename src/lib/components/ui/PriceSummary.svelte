@@ -4,7 +4,6 @@
 -->
 <script lang="ts">
 	import { builder, formatPrice } from '$lib/stores/builderState.svelte';
-	import { Button } from '$lib/components/ui/button';
 	import ChevronUp from '@lucide/svelte/icons/chevron-up';
 	import ShoppingCart from '@lucide/svelte/icons/shopping-cart';
 
@@ -56,13 +55,16 @@
 					class={`size-3 transition-transform group-hover:text-ink ${open ? 'rotate-180' : ''}`}
 				/>
 			</span>
-			<span class="font-mono text-2xl text-acid" style="text-shadow: var(--shadow-glow-acid)">
+			<span class="text-brand font-display text-xl font-extrabold whitespace-nowrap">
 				{formatPrice(builder.price.total)}
 			</span>
 		</button>
-		<Button size="lg" class="font-medium shadow-glow" onclick={onAddToCart}>
-			<ShoppingCart data-icon="inline-start" />
+		<button
+			class="inline-flex h-10 shrink-0 items-center gap-2 rounded-full bg-brand px-4 text-sm font-semibold text-void shadow-[0_0_24px_oklch(0.72_0.2_20/0.4)] transition-transform hover:scale-[1.03] focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:outline-none"
+			onclick={onAddToCart}
+		>
+			<ShoppingCart class="size-4" />
 			In den Warenkorb
-		</Button>
+		</button>
 	</div>
 </div>

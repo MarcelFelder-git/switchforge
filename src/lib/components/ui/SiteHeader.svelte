@@ -24,8 +24,8 @@
 	)}
 >
 	<div class="flex items-baseline gap-6">
-		<a href="/" class="font-mono text-sm tracking-[0.3em] uppercase">
-			Switch<span class="text-neon">Forge</span>
+		<a href="/" class="font-display text-lg font-extrabold tracking-tight">
+			Switch<span class="text-brand">Forge</span>
 		</a>
 		{#if !compact}
 			<nav class="hidden items-baseline gap-5 sm:flex">
@@ -34,7 +34,7 @@
 						href={link.href}
 						class={cn(
 							'font-mono text-[11px] tracking-[0.15em] uppercase transition-colors hover:text-ink',
-							page.url.pathname.startsWith(link.href) ? 'text-neon' : 'text-ink-muted'
+							page.url.pathname.startsWith(link.href) ? 'text-ink' : 'text-ink-muted'
 						)}
 					>
 						{link.label}
@@ -52,13 +52,13 @@
 
 	<Button
 		variant="outline"
-		class="hover:border-neon hover:text-neon"
+		class="rounded-full hover:border-ember hover:text-ember"
 		onclick={() => (cart.open = true)}
 	>
 		<ShoppingCart data-icon="inline-start" />
 		Cart
 		{#if cart.count > 0}
-			<span class="rounded-full bg-neon px-1.5 font-mono text-[10px] text-void">{cart.count}</span>
+			<span class="rounded-full bg-brand px-1.5 font-mono text-[10px] text-void">{cart.count}</span>
 		{/if}
 	</Button>
 </header>

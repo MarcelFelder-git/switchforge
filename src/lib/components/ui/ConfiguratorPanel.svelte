@@ -28,12 +28,12 @@
 
 	const option =
 		'group rounded-panel border text-left transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring/60';
-	const idle = 'border-line bg-surface/70 hover:border-steel hover:bg-surface-raised';
-	const active = 'border-neon bg-neon-soft shadow-glow';
+	const idle = 'border-line bg-void/40 hover:border-steel hover:bg-surface-raised/60';
+	const active = 'border-ember bg-ember/10 shadow-[0_0_20px_oklch(0.72_0.19_45/0.25)]';
 
 	const SWITCH_TYPE: Record<SwitchType, { label: string; color: string }> = {
-		linear: { label: 'Linear', color: 'bg-neon' },
-		tactile: { label: 'Tactile', color: 'bg-brass' },
+		linear: { label: 'Linear', color: 'bg-violet' },
+		tactile: { label: 'Tactile', color: 'bg-coral' },
 		clicky: { label: 'Clicky', color: 'bg-ember' }
 	};
 
@@ -46,7 +46,7 @@
 	<section class="border-t border-line/70 pt-5 first:border-t-0 first:pt-0">
 		<header class="mb-3 flex items-baseline justify-between gap-3">
 			<h3 class="font-mono text-[11px] tracking-[0.2em] text-ink-faint uppercase">
-				<span class="text-neon/80">{no}</span> / {title}
+				<span class="text-ember">{no}</span> / {title}
 			</h3>
 			<span class="truncate font-mono text-[11px] text-ink-muted">{current}</span>
 		</header>
@@ -103,7 +103,9 @@
 				<button
 					class={cn(
 						'relative h-10 w-10 rounded-full border-2 transition-transform hover:scale-110 focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:outline-none',
-						builder.caseColorId === color.id ? 'border-neon shadow-glow' : 'border-line'
+						builder.caseColorId === color.id
+							? 'border-ink shadow-[0_0_16px_oklch(0.72_0.19_45/0.4)]'
+							: 'border-line'
 					)}
 					style:background={color.hex}
 					title={`${color.name}${color.priceDeltaCents ? ` (+${formatPrice(color.priceDeltaCents)})` : ''}`}
@@ -337,7 +339,7 @@
 				placeholder="z. B. dein Name"
 				value={builder.engraving}
 				oninput={(e) => builder.setEngraving(sanitizeEngraving(e.currentTarget.value))}
-				class="w-full rounded-panel border border-line bg-void/60 px-3 py-2 font-mono text-sm tracking-[0.12em] text-ink uppercase placeholder:tracking-normal placeholder:text-ink-faint placeholder:normal-case focus:border-neon focus:ring-2 focus:ring-ring/40 focus:outline-none"
+				class="w-full rounded-panel border border-line bg-void/60 px-3 py-2 font-mono text-sm tracking-[0.12em] text-ink uppercase placeholder:tracking-normal placeholder:text-ink-faint placeholder:normal-case focus:border-ember focus:ring-2 focus:ring-ember/30 focus:outline-none"
 			/>
 		</label>
 		<p class="mt-1.5 font-mono text-[10px] text-ink-faint">

@@ -30,7 +30,8 @@
 		zoom = 1,
 		interactive = true,
 		preserve = false,
-		transparent = false
+		transparent = false,
+		studio = false
 	}: {
 		build?: BuilderState;
 		autoRotate?: boolean;
@@ -44,6 +45,8 @@
 		preserve?: boolean;
 		/** Kein Hintergrund, kein Boden – das Board schwebt über der Seite (Hero) */
 		transparent?: boolean;
+		/** Ohne Underglow – für Renders, die eine KI weiterverarbeitet */
+		studio?: boolean;
 	} = $props();
 
 	const createRenderer = (canvas: HTMLCanvasElement) => {
@@ -58,7 +61,9 @@
 	};
 </script>
 
-<div class={transparent ? 'h-full w-full' : 'h-full w-full scanlines'}>
+<!-- blend-screen: Schwarz des Canvas verschwindet, Glow addiert sich auf die Seite –
+     robust auch dort, wo WebGL-Alpha nach dem Bloom nicht sauber durchkommt -->
+<div class={transparent ? 'h-full w-full blend-screen' : 'h-full w-full'}>
 	<Canvas dpr={[1, 1.5]} toneMapping={NeutralToneMapping} {createRenderer}>
 		<SceneEnvironment />
 		<SceneCamera
@@ -99,6 +104,6 @@
 		<!-- Warmes Fill von rechts, sehr schwach -->
 		<T.PointLight position={[10, 4, 4]} intensity={6} color="#f97316" />
 
-		<KeyboardModel {build} ground={!transparent} />
+		<KeyboardModel {build} ground={!transparent} underglow={!studio} />
 	</Canvas>
 </div>

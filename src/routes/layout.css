@@ -124,6 +124,52 @@
 @utility glow-ember {
 	background: radial-gradient(closest-side, oklch(0.72 0.19 45 / 0.3), transparent 70%);
 }
+@utility glow-cyan {
+	background: radial-gradient(closest-side, oklch(0.85 0.17 195 / 0.16), transparent 70%);
+}
+
+/* Langsames Driften der Lichtflecken – drei verschiedene Bahnen, damit es nie synchron läuft */
+@keyframes drift-a {
+	0%,
+	100% {
+		transform: translate(0, 0) scale(1);
+	}
+	50% {
+		transform: translate(6vw, 8vh) scale(1.12);
+	}
+}
+@keyframes drift-b {
+	0%,
+	100% {
+		transform: translate(0, 0) scale(1);
+	}
+	50% {
+		transform: translate(-8vw, -6vh) scale(0.92);
+	}
+}
+@keyframes drift-c {
+	0%,
+	100% {
+		transform: translate(0, 0);
+	}
+	50% {
+		transform: translate(10vw, -4vh);
+	}
+}
+@utility animate-drift-a {
+	animation: drift-a 26s ease-in-out infinite;
+}
+@utility animate-drift-b {
+	animation: drift-b 34s ease-in-out infinite;
+}
+@utility animate-drift-c {
+	animation: drift-c 40s ease-in-out infinite;
+}
+
+/* 3D-Canvas ohne eigenen Hintergrund: Schwarz verschwindet, Licht addiert sich auf die Seite */
+@utility blend-screen {
+	mix-blend-mode: screen;
+}
 
 /* Laufband */
 @keyframes marquee {

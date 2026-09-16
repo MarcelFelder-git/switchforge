@@ -18,8 +18,8 @@
 
 <div class="flex min-h-screen flex-col">
 	<header class="border-b border-line px-6 py-4">
-		<a href="/" class="font-mono text-sm tracking-[0.3em] uppercase">
-			Switch<span class="text-neon">Forge</span>
+		<a href="/" class="font-display text-lg font-extrabold tracking-tight">
+			Switch<span class="text-brand">Forge</span>
 		</a>
 	</header>
 

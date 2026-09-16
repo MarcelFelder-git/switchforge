@@ -30,7 +30,11 @@
 	import fontUrl from '@fontsource/jetbrains-mono/files/jetbrains-mono-latin-500-normal.woff?url';
 
 	/** Welcher State gerendert wird – Standard ist der Konfigurator, die Landing bringt ihren eigenen */
-	let { build = builder, ground = true }: { build?: BuilderState; ground?: boolean } = $props();
+	let {
+		build = builder,
+		ground = true,
+		underglow = true
+	}: { build?: BuilderState; ground?: boolean; underglow?: boolean } = $props();
 
 	interactivity();
 	const { invalidate } = useThrelte();
@@ -374,17 +378,19 @@
 		{/each}
 	</T.Group>
 
-	<!-- Underglow: leuchtender Streifen unter dem Case + Licht auf den Boden -->
-	<T.Mesh material={underglowMat} position={[caseX, -CASE_H - 0.01, 0]} rotation.x={-Math.PI / 2}>
-		<T.PlaneGeometry args={[caseW + 0.16, caseD + 0.16]} />
-	</T.Mesh>
-	<T.PointLight
-		position={[0, -CASE_H + 0.2, 0]}
-		color={build.keycapSet.colors.accent}
-		intensity={12}
-		distance={8}
-		decay={2}
-	/>
+	{#if underglow}
+		<!-- Underglow: leuchtender Streifen unter dem Case + Licht auf den Boden -->
+		<T.Mesh material={underglowMat} position={[caseX, -CASE_H - 0.01, 0]} rotation.x={-Math.PI / 2}>
+			<T.PlaneGeometry args={[caseW + 0.16, caseD + 0.16]} />
+		</T.Mesh>
+		<T.PointLight
+			position={[0, -CASE_H + 0.2, 0]}
+			color={build.keycapSet.colors.accent}
+			intensity={12}
+			distance={8}
+			decay={2}
+		/>
+	{/if}
 
 	<!-- Boden: fängt Schatten und Underglow -->
 	{#if ground}

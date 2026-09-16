@@ -19,6 +19,8 @@
 		elevation: number;
 		zoom: number;
 		shiftY?: number;
+		/** ohne Underglow-Streifen (KI-Vorlagen) */
+		studio?: boolean;
 	}
 
 	const byId = Object.fromEntries(presets.map((p) => [p.id, p.config]));
@@ -44,21 +46,24 @@
 			config: { ...byId.bone, deskmatId: 'no-mat' },
 			azimuth: 48,
 			elevation: 14,
-			zoom: 0.8
+			zoom: 0.8,
+			studio: true
 		},
 		{
 			name: 'src-nightshift-top',
 			config: { ...byId.nightshift, deskmatId: 'no-mat' },
 			azimuth: 0,
 			elevation: 62,
-			zoom: 0.85
+			zoom: 0.85,
+			studio: true
 		},
 		{
 			name: 'src-terminal-front',
 			config: { ...byId.terminal, deskmatId: 'no-mat' },
 			azimuth: -12,
 			elevation: 24,
-			zoom: 0.85
+			zoom: 0.85,
+			studio: true
 		},
 		{
 			name: 'src-arctic',
@@ -71,7 +76,8 @@
 			},
 			azimuth: 22,
 			elevation: 30,
-			zoom: 0.9
+			zoom: 0.9,
+			studio: true
 		}
 	];
 
@@ -146,6 +152,7 @@
 				azimuth={current.azimuth}
 				elevation={current.elevation}
 				zoom={current.zoom}
+				studio={current.studio ?? false}
 			/>
 		</div>
 		<div class="font-mono text-xs">
