@@ -30,7 +30,7 @@
 	import fontUrl from '@fontsource/jetbrains-mono/files/jetbrains-mono-latin-500-normal.woff?url';
 
 	/** Welcher State gerendert wird – Standard ist der Konfigurator, die Landing bringt ihren eigenen */
-	let { build = builder }: { build?: BuilderState } = $props();
+	let { build = builder, ground = true }: { build?: BuilderState; ground?: boolean } = $props();
 
 	interactivity();
 	const { invalidate } = useThrelte();
@@ -387,8 +387,10 @@
 	/>
 
 	<!-- Boden: fängt Schatten und Underglow -->
-	<T.Mesh position.y={GROUND_Y} rotation.x={-Math.PI / 2} receiveShadow>
-		<T.PlaneGeometry args={[80, 80]} />
-		<T.MeshStandardMaterial color="#0b0b0f" roughness={0.9} metalness={0.05} />
-	</T.Mesh>
+	{#if ground}
+		<T.Mesh position.y={GROUND_Y} rotation.x={-Math.PI / 2} receiveShadow>
+			<T.PlaneGeometry args={[80, 80]} />
+			<T.MeshStandardMaterial color="#0b0b0f" roughness={0.9} metalness={0.05} />
+		</T.Mesh>
+	{/if}
 </T.Group>

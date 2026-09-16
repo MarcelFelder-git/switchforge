@@ -38,6 +38,10 @@ Deploy: Vercel Hobby (adapter-vercel), Stripe Test-Modus, keine Datenbank. Null 
 
 Node 20 lokal; `engine-strict` ist aus (`.npmrc`), weil `camera-controls` (Browser-Lib via Threlte) Node ≥22 deklariert. Mit Node 22 kann das zurück.
 
+## Marketing vs. Tool
+
+Landing/About nutzen die Display-Schrift Syne + Marken-Verlauf (`text-brand`, `bg-brand`, Violett → Ember) – bewusst anders als der Mono-Terminal-Look des Konfigurators. Produktbilder sind Renders aus der eigenen Szene: `/dev/shots` (nur Dev) → `POST /api/dev/shot` → `static/img/shots/*.webp`. Neue Shots: Liste in `dev/shots/+page.svelte`, dann pro Shot `window.__apply(name)` + `window.__capture(name)` (Hintergrund-Tabs rendern nicht, deshalb nicht in einer Schleife).
+
 ## Routen
 
 - `/` Landing (Hero mit eigenem Showcase-State, Starter-Builds laden per `builder.load()` in `/build`)

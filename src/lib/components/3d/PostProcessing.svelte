@@ -24,7 +24,7 @@
 	const { scene, renderer, camera, size, autoRender, renderStage } = useThrelte();
 
 	// HalfFloat: Emissive-Werte > 1.0 überleben bis zum Bloom (sonst geclampt)
-	const composer = new EffectComposer(renderer, { frameBufferType: HalfFloatType });
+	const composer = new EffectComposer(renderer, { frameBufferType: HalfFloatType, alpha: true });
 
 	const bloom = new BloomEffect({
 		// Schwelle bei 1.0: nur HDR-Werte > 1 (Emissive, Legenden) glühen –
