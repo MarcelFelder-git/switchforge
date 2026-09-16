@@ -11,7 +11,10 @@
 	import { Tween } from 'svelte/motion';
 	import { cubicInOut } from 'svelte/easing';
 	import { BuilderState, builder, formatPrice } from '$lib/stores/builderState.svelte';
-	import { showcaseConfig } from '$lib/data/presets';
+	import { presets } from '$lib/data/presets';
+
+	// Ruhige Basis: Nightshift (Graphit, Void, Messing, kein Licht) – wie das Hero-Foto
+	const baseConfig = presets.find((p) => p.id === 'nightshift')!.config;
 	import { caseColors, keycapSets, ENGRAVING_MAX_LENGTH } from '$lib/data/catalog';
 	import { sanitizeEngraving, type BuildConfig } from '$lib/pricing';
 	import { cn } from '$lib/utils';
@@ -20,8 +23,8 @@
 	const scenePromise = import('$lib/components/3d/Scene.svelte');
 
 	// --- Personalisierung: das, was der Kunde im Hero wählt ---
-	let caseColorId = $state(showcaseConfig.caseColorId);
-	let keycapSetId = $state(showcaseConfig.keycapSetId);
+	let caseColorId = $state(baseConfig.caseColorId);
+	let keycapSetId = $state(baseConfig.keycapSetId);
 	let engraving = $state('');
 
 	interface Step {
@@ -46,9 +49,9 @@
 			id: 'licht',
 			eyebrow: 'Beleuchtung',
 			title: 'Licht, das durch die Tasten kommt.',
-			text: 'RGB-Welle oder warmes Weiß. Die Legenden leuchten mit – nicht nur die Spalten dazwischen. Von unten, wie es sein soll.',
+			text: 'Warmes Weiß oder RGB-Welle, wenn du willst. Die Legenden leuchten mit – nicht nur die Spalten dazwischen. Von unten, wie es sein soll.',
 			camera: { azimuth: -30, elevation: 18, zoom: 0.6 },
-			patch: { lightingId: 'rgb-light' }
+			patch: { lightingId: 'white-light' }
 		},
 		{
 			id: 'material',
@@ -56,7 +59,7 @@
 			title: 'Messing unter den Fingern.',
 			text: 'Die Platte färbt den Klang: Messing klingt hell und lang, Polycarbonat weich. Das Gehäuse hat eine Fase und ein Metallband, das mitgeht.',
 			camera: { azimuth: 66, elevation: 11, zoom: 0.5 },
-			patch: { lightingId: 'rgb-light', plateId: 'brass' }
+			patch: { lightingId: 'no-light', plateId: 'brass' }
 		},
 		{
 			id: 'kabel',
@@ -64,7 +67,7 @@
 			title: 'Kabel in deiner Farbe.',
 			text: 'Spiralkabel passend zum Keycap-Set, USB-C mit Metallrahmen, Plakette hinten rechts. Oder ohne alles: Wireless mit 2,4 GHz und Bluetooth.',
 			camera: { azimuth: 158, elevation: 16, zoom: 0.62 },
-			patch: { lightingId: 'rgb-light', connectivityId: 'wired' }
+			patch: { lightingId: 'no-light', connectivityId: 'wired' }
 		},
 		{
 			id: 'zeichen',
@@ -81,7 +84,7 @@
 			title: 'Bau deins.',
 			text: 'Zehn Minuten im Konfigurator. Alles, was du hier gewählt hast, ist schon drin.',
 			camera: { azimuth: 0, elevation: 37, zoom: 1 },
-			patch: { lightingId: 'rgb-light' }
+			patch: { lightingId: 'no-light', connectivityId: 'wired' }
 		}
 	];
 
@@ -107,7 +110,13 @@
 	const showcase = new BuilderState();
 	const personal = $derived<Partial<BuildConfig>>({ caseColorId, keycapSetId, engraving });
 	$effect(() => {
-		showcase.load({ ...showcaseConfig, deskmatId: 'no-mat', ...personal, ...step.patch });
+		showcase.load({
+			...baseConfig,
+			connectivityId: 'wired',
+			deskmatId: 'no-mat',
+			...personal,
+			...step.patch
+		});
 	});
 
 	// Schritte beobachten: der, der die Bildschirmmitte kreuzt, ist aktiv

@@ -34,7 +34,7 @@
 	}
 </script>
 
-<section class="flex flex-col gap-3 border-t border-line/70 pt-5">
+<section class="flex flex-col gap-3 rounded-2xl border border-line/60 bg-surface/50 p-4">
 	<header class="flex items-baseline justify-between gap-3">
 		<h3 class="font-mono text-[11px] tracking-[0.2em] text-ink-faint uppercase">
 			<span class="text-ember">09</span> / Sound

@@ -37,10 +37,12 @@
 		polycarbonate: 'linear-gradient(135deg,#f3f6f9 0%,#c9d3dd 45%,#ffffff 100%)'
 	};
 
+	// Weich: grosse Radien, 300 ms fuer alles, leichtes Anheben beim Hover
 	const option =
-		'group rounded-panel border text-left transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring/60';
-	const idle = 'border-line bg-void/40 hover:border-steel hover:bg-surface-raised/60';
-	const active = 'border-ember bg-ember/10 shadow-[0_0_20px_oklch(0.72_0.19_45/0.25)]';
+		'group rounded-panel border text-left transition-all duration-300 ease-out outline-none focus-visible:ring-2 focus-visible:ring-ring/60 hover:-translate-y-0.5';
+	const idle = 'border-line/70 bg-void/40 hover:border-steel hover:bg-surface-raised/60';
+	const active =
+		'border-ember/80 bg-ember/10 shadow-[0_8px_30px_-8px_oklch(0.72_0.19_45/0.45)] ring-1 ring-ember/30';
 
 	const SWITCH_TYPE: Record<SwitchType, { label: string; color: string }> = {
 		linear: { label: 'Linear', color: 'bg-violet' },
@@ -54,7 +56,9 @@
 </script>
 
 {#snippet section(no: string, title: string, current: string, body: Snippet)}
-	<section class="border-t border-line/70 pt-5 first:border-t-0 first:pt-0">
+	<section
+		class="rounded-2xl border border-line/60 bg-surface/50 p-4 transition-colors duration-300 hover:border-line"
+	>
 		<header class="mb-3 flex items-baseline justify-between gap-3">
 			<h3 class="font-mono text-[11px] tracking-[0.2em] text-ink-faint uppercase">
 				<span class="text-ember">{no}</span> / {title}
@@ -65,7 +69,7 @@
 	</section>
 {/snippet}
 
-<div class="flex flex-col gap-5">
+<div class="flex flex-col gap-3">
 	{#snippet baseKitBody()}
 		<div class="grid grid-cols-2 gap-2">
 			{#each baseKits as kit (kit.id)}
@@ -121,7 +125,7 @@
 			{#each caseColors as color (color.id)}
 				<button
 					class={cn(
-						'relative h-10 w-10 rounded-full border-2 transition-transform hover:scale-110 focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:outline-none',
+						'relative h-10 w-10 rounded-full border-2 transition-all duration-300 ease-out hover:scale-110 focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:outline-none',
 						builder.caseColorId === color.id
 							? 'border-ink shadow-[0_0_16px_oklch(0.72_0.19_45/0.4)]'
 							: 'border-line'

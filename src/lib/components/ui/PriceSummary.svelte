@@ -29,9 +29,11 @@
 	);
 </script>
 
-<div class="sticky bottom-0 -mx-6 mt-auto -mb-6 border-t border-line bg-void/85 backdrop-blur-md">
+<div
+	class="sticky bottom-0 -mx-5 mt-auto -mb-5 rounded-t-2xl border-t border-line bg-void/85 backdrop-blur-md"
+>
 	{#if open}
-		<dl class="space-y-1 border-b border-line/70 px-6 py-3 font-mono text-[11px] text-ink-muted">
+		<dl class="space-y-1 border-b border-line/70 px-5 py-3 font-mono text-[11px] text-ink-muted">
 			{#each lines as line (line.label)}
 				<div class="flex justify-between gap-3">
 					<dt class="truncate">{line.label}</dt>
@@ -41,7 +43,7 @@
 		</dl>
 	{/if}
 
-	<div class="flex items-center gap-3 px-6 py-4">
+	<div class="flex items-center gap-3 px-5 py-4">
 		<button
 			class="group flex min-w-0 flex-1 flex-col items-start text-left"
 			onclick={() => (open = !open)}

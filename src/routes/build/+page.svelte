@@ -106,10 +106,10 @@
 	</main>
 
 	<aside
-		class="flex flex-col gap-5 border-l border-line bg-surface/40 p-6 backdrop-blur-md lg:overflow-y-auto"
+		class="flex flex-col gap-4 border-l border-line bg-surface/30 p-5 backdrop-blur-md lg:overflow-y-auto lg:scroll-smooth"
 	>
 		<!-- Kopf: Titel + Würfeln/Zurücksetzen -->
-		<div class="flex items-end justify-between gap-4 border-b border-line/70 pb-5">
+		<div class="flex items-end justify-between gap-4 pb-1">
 			<div>
 				<p class="font-mono text-[10px] tracking-[0.25em] text-ember uppercase">Konfigurator</p>
 				<h1 class="mt-1 font-display text-2xl font-extrabold text-ink">Dein Build.</h1>
