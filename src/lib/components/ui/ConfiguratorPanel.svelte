@@ -18,6 +18,7 @@
 		connectivityOptions,
 		languageOptions,
 		knobOptions,
+		deskmatOptions,
 		ENGRAVING_MAX_LENGTH,
 		ENGRAVING_PRICE_CENTS,
 		type SwitchType
@@ -73,7 +74,10 @@
 			{/each}
 		</div>
 		<!-- Beschriftung: gleiche physische Tasten, andere Legenden -->
-		<div class="mt-2 flex gap-2">
+		<p class="mt-4 mb-1.5 font-mono text-[10px] tracking-[0.15em] text-ink-muted uppercase">
+			Beschriftung
+		</p>
+		<div class="flex gap-2">
 			{#each languageOptions as lang (lang.id)}
 				<button
 					class={cn(option, 'flex-1 px-3 py-2', builder.languageId === lang.id ? active : idle)}
@@ -266,6 +270,38 @@
 		</div>
 		<p class="mt-2 font-mono text-[10px] text-ink-faint">{builder.knob.description}</p>
 
+		<p class="mt-4 mb-1.5 font-mono text-[10px] tracking-[0.15em] text-ink-muted uppercase">
+			Deskmat
+		</p>
+		<div class="grid grid-cols-3 gap-2">
+			{#each deskmatOptions as mat (mat.id)}
+				<button
+					class={cn(option, 'px-3 py-2.5', builder.deskmatId === mat.id ? active : idle)}
+					aria-pressed={builder.deskmatId === mat.id}
+					onclick={() => builder.setDeskmat(mat.id)}
+				>
+					<span class="flex items-center gap-2">
+						{#if mat.style !== 'none'}
+							<span
+								class="h-3 w-4 rounded-[2px] border"
+								style:background={mat.style === 'match' ? builder.keycapSet.colors.base : '#17171b'}
+								style:border-color={mat.style === 'match'
+									? builder.keycapSet.colors.accent
+									: '#2c2c33'}
+							></span>
+						{/if}
+						<span class="text-sm font-medium text-ink">{mat.name}</span>
+					</span>
+					<span class="block font-mono text-[10px] text-ink-muted"
+						>{delta(mat.priceDeltaCents)}</span
+					>
+				</button>
+			{/each}
+		</div>
+		{#if builder.deskmat.description}
+			<p class="mt-2 font-mono text-[10px] text-ink-faint">{builder.deskmat.description}</p>
+		{/if}
+
 		<label class="mt-4 block">
 			<span class="mb-1.5 flex items-baseline justify-between">
 				<span class="font-mono text-[10px] tracking-[0.15em] text-ink-muted uppercase">Gravur</span>
@@ -289,7 +325,11 @@
 	{@render section(
 		'08',
 		'Extras',
-		[builder.knob.enabled ? 'Knob' : null, builder.engraving ? `"${builder.engraving}"` : null]
+		[
+			builder.knob.enabled ? 'Knob' : null,
+			builder.deskmat.style !== 'none' ? 'Deskmat' : null,
+			builder.engraving ? `"${builder.engraving}"` : null
+		]
 			.filter(Boolean)
 			.join(' · ') || '–',
 		extrasBody

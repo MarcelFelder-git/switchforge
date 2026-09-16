@@ -17,8 +17,11 @@
 
 	const { size } = useThrelte();
 
+	// Knob und Deskmat machen das Motiv breiter – die Matte darf angeschnitten sein
 	const width = $derived(
-		getLayout(builder.baseKit.layout, builder.language.id).width + (builder.knob.enabled ? 1.5 : 0)
+		getLayout(builder.baseKit.layout, builder.language.id).width +
+			(builder.knob.enabled ? 1.5 : 0) +
+			(builder.deskmat.style !== 'none' ? 4 : 0)
 	);
 	const aspect = $derived($size.height > 0 ? $size.width / $size.height : 1.5);
 

@@ -34,9 +34,16 @@
 	const pressed = $derived(keypress.pressed.has(def.id));
 	const y = $derived(height / 2 + (pressed ? -TRAVEL : 0));
 
-	// Buchstaben und Symbole gross, Wörter (Esc, Ctrl, F12) klein
-	const fontSize = $derived(def.symbol ? 0.26 : def.label.length <= 1 ? 0.24 : 0.14);
+	// Buchstaben und Symbole gross, Wörter (Esc, Strg, F12) klein.
+	// Lange Wörter (Rollen, Einfg) müssen auf 1u passen → noch kleiner.
+	const fontSize = $derived(
+		def.symbol ? 0.26 : def.label.length <= 1 ? 0.24 : def.label.length <= 4 ? 0.14 : 0.115
+	);
 	const showLegend = $derived(def.code !== 'Space');
+	// Oberseite ist durch die Verjüngung etwas kleiner als die Grundfläche
+	const top = $derived(height / 2 + 0.002);
+	const TAPER = 0.16;
+	const topW = $derived((def.w - gap) * (1 - TAPER));
 
 	function setCursor(cursor: string) {
 		document.body.style.cursor = cursor;
@@ -62,16 +69,56 @@
 	/>
 
 	{#if showLegend}
-		<Text
-			text={def.label}
-			font={def.symbol ? symbolFontUrl : fontUrl}
-			{fontSize}
-			color={legendColor}
-			anchorX="left"
-			anchorY="top"
-			position={[-def.w / 2 + gap / 2 + 0.12, height / 2 + 0.002, -0.5 + gap / 2 + 0.11]}
-			rotation.x={-Math.PI / 2}
-			depthOffset={-1}
-		/>
+		{#if def.shiftLabel}
+			<!-- Zweitbelegung oben, Hauptlegende darunter – wie auf echten Kappen -->
+			<Text
+				text={def.shiftLabel}
+				font={fontUrl}
+				fontSize={0.17}
+				color={legendColor}
+				anchorX="center"
+				anchorY="middle"
+				position={[0, top, -0.15]}
+				rotation.x={-Math.PI / 2}
+				depthOffset={-1}
+			/>
+			<Text
+				text={def.label}
+				font={def.symbol ? symbolFontUrl : fontUrl}
+				fontSize={0.17}
+				color={legendColor}
+				anchorX="center"
+				anchorY="middle"
+				position={[0, top, 0.13]}
+				rotation.x={-Math.PI / 2}
+				depthOffset={-1}
+			/>
+		{:else}
+			<Text
+				text={def.label}
+				font={def.symbol ? symbolFontUrl : fontUrl}
+				{fontSize}
+				color={legendColor}
+				anchorX="center"
+				anchorY="middle"
+				position={[def.subLabel ? -0.07 : 0, top, 0]}
+				rotation.x={-Math.PI / 2}
+				depthOffset={-1}
+			/>
+			{#if def.subLabel}
+				<!-- kleines Symbol rechts neben dem Wort (Bild ↑) -->
+				<Text
+					text={def.subLabel}
+					font={symbolFontUrl}
+					fontSize={0.14}
+					color={legendColor}
+					anchorX="center"
+					anchorY="middle"
+					position={[topW / 2 - 0.1, top, 0]}
+					rotation.x={-Math.PI / 2}
+					depthOffset={-1}
+				/>
+			{/if}
+		{/if}
 	{/if}
 </T.Group>

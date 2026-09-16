@@ -19,8 +19,10 @@ Deploy: Vercel Hobby (adapter-vercel), Stripe Test-Modus, keine Datenbank. Null 
 - **`$lib/server/*` nur serverseitig** importieren (Stripe-Secret).
 - **Layouts sind Daten** (`src/lib/data/layouts.ts`, Mini-DSL pro Reihe, `getLayout(size, lang)` gecacht). `keyCount` im Katalog wird daraus abgeleitet, nie hartcodiert. DE/EN ändert nur Labels, Codes bleiben physisch.
 - **Legenden-Fonts**: JetBrains Mono (Latin) für Text, `static/fonts/legend-symbols.woff` (DejaVu-Subset, 4 KB) für ⌫ ⏎ ⇧ ← →. Neue Symbole → Subset neu bauen (fonttools, siehe Git-History).
-- **Legenden-Kontrast** per Luminanz der Kappenfarbe (`legendFor()` in KeyboardModel) – nie pauschal pro Set.
+- **Legenden-Kontrast** per Luminanz der Kappenfarbe (`legendFor()` in KeyboardModel) – nie pauschal pro Set. Bei RGB: eine `Color` pro Taste, in `useTask` mutiert (troika kopiert Color-Objekte pro Render).
+- **Legenden-Layout**: zentriert; Shift-Belegung oben, Hauptlegende unten (`shiftLabel`), DE-Wörter wie auf ISO-Tastaturen (Strg, Entf, Pos1, Bild↑).
 - **Tastendruck ≠ Konfiguration**: `keypress.svelte.ts` (SvelteSet, Sound) ist vom `builder` getrennt, damit Tippen keinen Preis-Recompute auslöst.
+- **3D-Geometrie** in `src/lib/components/3d/geometry.ts` (Case-Extrusion mit Fase – Shape um bevelSize geschrumpft, sonst wachsen die Aussenmasse; Seam; Keycap-Taper; Spiralkabel als Tube). `KeyboardModel.svelte` bleibt Szene + Materialien.
 - **3D**: geteilte Geometrien pro Keycap-Breite (konisch verjüngt), geteilte Materialien, Farben per `$effect` → `material.color.set()`. Kein GLTF, alles prozedural. Kamera-Distanz aus Layout-Breite + Canvas-Aspect (`SceneCamera.svelte`). Bloom + Neutral-Tonemapping in `PostProcessing.svelte` (`postprocessing`-Lib, HalfFloat-Buffer, Threshold 1.0 → nur Emissive/Legenden > 1 glühen).
 - **Sound**: `/static/audio/*.mp3` optional, sonst prozedurale Synthese (`synth.ts`: Impuls → Bandpass-Resonatoren + Thud, gerendert per OfflineAudioContext). Profile-Parameter oben in der Datei.
 - **On-demand-Rendering**: Nach direktem `material.*`-Zugriff immer `invalidate()` aus `useThrelte()` rufen, sonst bleibt das Bild stehen.

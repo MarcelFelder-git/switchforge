@@ -35,6 +35,7 @@ export class BuilderState {
 	connectivityId = $state<string>(defaultSelection.connectivityId);
 	languageId = $state<string>(defaultSelection.languageId);
 	knobId = $state<string>(defaultSelection.knobId);
+	deskmatId = $state<string>(defaultSelection.deskmatId);
 	engraving = $state<string>(defaultSelection.engraving);
 
 	// --- Aufgelöste Katalogobjekte ---
@@ -66,6 +67,9 @@ export class BuilderState {
 	}
 	get knob() {
 		return this.resolved.knob;
+	}
+	get deskmat() {
+		return this.resolved.deskmat;
 	}
 
 	// --- Pricing Engine: rechnet sich neu, sobald sich irgendeine ID ändert ---
@@ -102,6 +106,9 @@ export class BuilderState {
 	setKnob(id: string) {
 		this.knobId = id;
 	}
+	setDeskmat(id: string) {
+		this.deskmatId = id;
+	}
 	setEngraving(text: string) {
 		this.engraving = text;
 	}
@@ -122,6 +129,7 @@ export class BuilderState {
 			connectivityId: this.connectivityId,
 			languageId: this.languageId,
 			knobId: this.knobId,
+			deskmatId: this.deskmatId,
 			engraving: this.engraving
 		};
 	}
@@ -137,6 +145,7 @@ export class BuilderState {
 		this.connectivityId = config.connectivityId;
 		this.languageId = config.languageId;
 		this.knobId = config.knobId;
+		this.deskmatId = config.deskmatId;
 		this.engraving = config.engraving;
 	}
 }

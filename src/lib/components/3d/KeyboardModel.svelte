@@ -13,20 +13,21 @@
 <script lang="ts">
 	import { T, useThrelte, useTask } from '@threlte/core';
 	import { interactivity, Text } from '@threlte/extras';
+	import type { IntersectionEvent } from '@threlte/extras';
 	import {
 		MeshStandardMaterial,
 		MeshPhysicalMaterial,
 		Color,
 		CanvasTexture,
 		RepeatWrapping,
-		SRGBColorSpace
+		SRGBColorSpace,
+		Vector3
 	} from 'three';
-	import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js';
-	import type { IntersectionEvent } from '@threlte/extras';
 	import { builder } from '$lib/stores/builderState.svelte';
-	import { getLayout } from '$lib/data/layouts';
-	import fontUrl from '@fontsource/jetbrains-mono/files/jetbrains-mono-latin-500-normal.woff?url';
+	import { getLayout, type KeyDef } from '$lib/data/layouts';
+	import { caseGeometry, seamGeometry, keycapGeometry, coiledCableGeometry } from './geometry';
 	import Keycap from './Keycap.svelte';
+	import fontUrl from '@fontsource/jetbrains-mono/files/jetbrains-mono-latin-500-normal.woff?url';
 
 	interactivity();
 	const { invalidate } = useThrelte();
@@ -37,74 +38,75 @@
 	const CASE_MARGIN = 0.45;
 	const CASE_H = 0.85;
 	const PLATE_H = 0.06;
+	const KNOB_W = 1.5;
+	const GROUND_Y = -CASE_H - 0.06;
 
 	const layout = $derived(getLayout(builder.baseKit.layout, builder.language.id));
 	const hasKnob = $derived(builder.knob.enabled);
+	const wireless = $derived(builder.connectivity.mode === 'wireless');
+	const lightingMode = $derived(builder.lighting.mode);
+	const deskmat = $derived(builder.deskmat.style);
+
 	// Knob braucht rechts 1.5u Platz – das Case wächst und rückt entsprechend
-	const KNOB_W = 1.5;
 	const extraW = $derived(hasKnob ? KNOB_W : 0);
 	const caseW = $derived(layout.width + CASE_MARGIN * 2 + extraW);
 	const caseD = $derived(layout.depth + CASE_MARGIN * 2);
 	const caseX = $derived(extraW / 2);
+	const rearZ = $derived(-caseD / 2);
 
-	/**
-	 * Keycap-Profil: echte Caps sind oben schmaler als unten (Cherry-Profil).
-	 * Wir verjüngen die Rounded-Box nach oben, indem wir x/z jedes Vertex
-	 * abhängig von seiner Höhe skalieren – billiger als eigene Geometrie.
-	 */
-	function keycapGeometry(w: number): RoundedBoxGeometry {
-		const geo = new RoundedBoxGeometry(w - GAP, KEY_H, 1 - GAP, 3, 0.06);
-		const pos = geo.attributes.position;
-		const TAPER = 0.16; // oben 16 % schmaler
-		for (let i = 0; i < pos.count; i++) {
-			const t = (pos.getY(i) + KEY_H / 2) / KEY_H; // 0 unten … 1 oben
-			const k = 1 - TAPER * t;
-			pos.setX(i, pos.getX(i) * k);
-			pos.setZ(i, pos.getZ(i) * k);
-		}
-		pos.needsUpdate = true;
-		geo.computeVertexNormals();
-		return geo;
-	}
-
-	// --- Geometrien: eine pro Keycap-Breite, geteilt über alle Tasten ---
+	// --- Geometrien: geteilt, bei Layout-Wechsel neu ---
 	const keyGeometries = $derived.by(() => {
-		const map = new Map<number, RoundedBoxGeometry>();
+		const map = new Map<number, ReturnType<typeof keycapGeometry>>();
 		for (const key of layout.keys) {
-			if (!map.has(key.w)) map.set(key.w, keycapGeometry(key.w));
+			if (!map.has(key.w)) map.set(key.w, keycapGeometry(key.w, KEY_H, GAP));
 		}
 		return map;
 	});
+	const caseGeo = $derived(caseGeometry(caseW, caseD, CASE_H));
+	const seamGeo = $derived(seamGeometry(caseW + 0.05, caseD + 0.05, 0.06));
+	const cableGeo = $derived(
+		coiledCableGeometry(new Vector3(caseX, -CASE_H * 0.45, rearZ - 0.04), GROUND_Y)
+	);
+	const matW = $derived(caseW + 9);
+	const matD = $derived(caseD + 3.6);
 
-	const caseGeometry = $derived(new RoundedBoxGeometry(caseW, CASE_H, caseD, 4, 0.18));
-
-	// Alte Geometrien freigeben, wenn das Layout wechselt
 	$effect(() => {
-		const geos = [...keyGeometries.values(), caseGeometry];
+		const geos = [...keyGeometries.values(), caseGeo, seamGeo, cableGeo];
 		return () => geos.forEach((g) => g.dispose());
 	});
 
 	// --- Materialien: geteilt, Farben werden per Effect nachgeführt ---
 	const keyBaseMat = new MeshStandardMaterial({ roughness: 0.55, metalness: 0 });
 	const keyAccentMat = new MeshStandardMaterial({ roughness: 0.55, metalness: 0 });
+	const keyNoveltyMat = new MeshStandardMaterial({ roughness: 0.5, metalness: 0 });
 	const caseMat = new MeshPhysicalMaterial({
 		roughness: 0.32,
 		metalness: 0.75,
 		clearcoat: 0.4,
 		clearcoatRoughness: 0.3
 	});
+	const metalMat = new MeshStandardMaterial({ roughness: 0.3, metalness: 1 }); // Seam, Knob, Badge
 	const plateMat = new MeshStandardMaterial({ roughness: 0.28, metalness: 0.95 });
 	const underglowMat = new MeshStandardMaterial({ emissiveIntensity: 2.5, color: '#000000' });
 	const portMat = new MeshStandardMaterial({ color: '#0a0a0c', roughness: 0.7, metalness: 0.3 });
 	const portRimMat = new MeshStandardMaterial({ color: '#c8ccd2', roughness: 0.35, metalness: 1 });
 	const footMat = new MeshStandardMaterial({ color: '#1a1a1d', roughness: 0.95 });
 	const switchMat = new MeshStandardMaterial({ color: '#d4d7dc', roughness: 0.4, metalness: 0.8 });
+	const cableMat = new MeshStandardMaterial({ roughness: 0.6, metalness: 0.05 });
+	const matMat = new MeshStandardMaterial({ roughness: 0.97, metalness: 0 }); // Stoff
+	const stitchMat = new MeshStandardMaterial({ roughness: 0.9, metalness: 0 });
+	const knobCapMat = new MeshStandardMaterial({ color: '#111114', roughness: 0.5, metalness: 0.4 });
 
 	const PLATE_COLORS = { aluminium: '#9aa0a8', brass: '#c9a227', polycarbonate: '#dfe6ee' };
+	/** Seam/Knob/Badge in Messing, wenn die Platte Messing ist – sonst Stahl */
+	const trimColor = $derived(builder.plate.material === 'brass' ? '#c9a227' : '#b8bcc4');
 
 	$effect(() => {
 		keyBaseMat.color.set(builder.keycapSet.colors.base);
 		keyAccentMat.color.set(builder.keycapSet.colors.accent);
+		// Novelty-Esc: dritte Farbe des Sets (die Legendenfarbe) als Kappe
+		keyNoveltyMat.color.set(builder.keycapSet.colors.legend);
+		cableMat.color.set(builder.keycapSet.colors.accent);
 		invalidate();
 	});
 	$effect(() => {
@@ -112,6 +114,7 @@
 		invalidate();
 	});
 	$effect(() => {
+		metalMat.color.set(trimColor);
 		const c = PLATE_COLORS[builder.plate.material];
 		plateMat.color.set(c);
 		plateMat.roughness = builder.plate.material === 'polycarbonate' ? 0.5 : 0.28;
@@ -119,8 +122,17 @@
 		invalidate();
 	});
 	$effect(() => {
-		// Underglow nimmt die Akzentfarbe des Keycap-Sets – kleines Farb-Matching
 		underglowMat.emissive = new Color(builder.keycapSet.colors.accent);
+		invalidate();
+	});
+	$effect(() => {
+		if (deskmat === 'match') {
+			matMat.color.set(builder.keycapSet.colors.base);
+			stitchMat.color.set(builder.keycapSet.colors.accent);
+		} else {
+			matMat.color.set('#26262c');
+			stitchMat.color.set('#3d3d47');
+		}
 		invalidate();
 	});
 
@@ -143,8 +155,6 @@
 		return tex;
 	})();
 
-	const lightingMode = $derived(builder.lighting.mode);
-
 	$effect(() => {
 		if (lightingMode === 'rgb') {
 			plateMat.emissive.set('#ffffff');
@@ -163,21 +173,6 @@
 		invalidate();
 	});
 
-	// useTask invalidiert automatisch pro Frame; nur laufen lassen, wenn RGB an ist
-	const wave = useTask(
-		(delta) => {
-			rainbow.offset.x = (rainbow.offset.x + delta * 0.25) % 1;
-		},
-		{ autoStart: false }
-	);
-	$effect(() => {
-		if (lightingMode === 'rgb') wave.start();
-		else wave.stop();
-	});
-
-	const underglow = $derived(builder.keycapSet.colors.accent);
-	const backlightColor = $derived(lightingMode === 'white' ? '#fff3d6' : '#ffffff');
-
 	/**
 	 * Legenden-Kontrast pro Taste: helle Kappe → dunkle Schrift, dunkle Kappe →
 	 * helle Schrift. Entscheidet über die relative Luminanz der Kappenfarbe,
@@ -186,96 +181,121 @@
 	function legendFor(bgHex: string, preferred: string): string {
 		const bg = new Color(bgHex);
 		const lum = 0.2126 * bg.r + 0.7152 * bg.g + 0.0722 * bg.b; // linear, wie Three sie hält
-		if (lum > 0.3) return '#16161a'; // helle Kappe
-		// dunkle Kappe: das Set-Legend nehmen, wenn es hell genug ist
+		if (lum > 0.3) return '#16161a';
 		const pref = new Color(preferred);
 		const prefLum = 0.2126 * pref.r + 0.7152 * pref.g + 0.0722 * pref.b;
 		return prefLum > 0.35 ? preferred : '#f4f4f5';
 	}
 
+	const backlightColor = $derived(lightingMode === 'white' ? '#fff3d6' : '#ffffff');
+
 	// Shine-Through: bei Beleuchtung leuchten die Legenden selbst.
 	// Color-Werte > 1 landen im HalfFloat-Buffer und werden vom Bloom erfasst.
-	const glowLegend = $derived(
-		lightingMode === 'none' ? null : new Color(backlightColor).multiplyScalar(2.4)
-	);
-	const legendBase = $derived(
-		glowLegend ?? legendFor(builder.keycapSet.colors.base, builder.keycapSet.colors.legend)
-	);
-	const legendAccent = $derived(
-		glowLegend ?? legendFor(builder.keycapSet.colors.accent, builder.keycapSet.colors.legend)
-	);
+	// RGB: eine eigene Color pro Taste, die die Welle pro Frame mutiert – troika
+	// kopiert Color-Objekte bei jedem Render, Svelte muss nichts neu rendern.
+	const rgbLegendColors = $derived(new Map(layout.keys.map((k) => [k.id, new Color(1, 1, 1)])));
+	const whiteGlow = $derived(new Color(backlightColor).multiplyScalar(2.4));
+	const set = $derived(builder.keycapSet.colors);
+	const legendBase = $derived(legendFor(set.base, set.legend));
+	const legendAccent = $derived(legendFor(set.accent, set.legend));
+	const legendNovelty = $derived(legendFor(set.legend, set.base));
 
-	// Knob: Klick dreht ihn um 30° – kleine Spielerei, die die Szene lebendig macht
-	let knobAngle = $state(0);
-	const knobMat = new MeshStandardMaterial({
-		color: '#b8bcc4',
-		roughness: 0.35,
-		metalness: 1,
-		flatShading: true // 24 Facetten → sieht gerändelt aus
+	function legendColor(key: KeyDef) {
+		if (lightingMode === 'rgb') return rgbLegendColors.get(key.id)!;
+		if (lightingMode === 'white') return whiteGlow;
+		if (key.code === 'Escape') return legendNovelty;
+		return key.accent ? legendAccent : legendBase;
+	}
+
+	// Welle: Textur-Offset UND Legendenfarben pro Frame – gleiche Phase, gleiche Richtung
+	const wave = useTask(
+		(delta) => {
+			rainbow.offset.x = (rainbow.offset.x + delta * 0.25) % 1;
+			for (const key of layout.keys) {
+				const u = (key.x + layout.width / 2) / layout.width;
+				const hue = (u + rainbow.offset.x) % 1;
+				rgbLegendColors.get(key.id)!.setHSL(hue, 1, 0.6).multiplyScalar(2.2);
+			}
+		},
+		{ autoStart: false }
+	);
+	$effect(() => {
+		if (lightingMode === 'rgb') wave.start();
+		else wave.stop();
 	});
-	// Gravur: dunkel auf hellem Case, hell auf dunklem – gleiche Regel wie Legenden
+
+	// Novelty-Esc: eigenes Material + Forge-Glyphe statt "Esc"
+	const noveltyEsc = (key: KeyDef): KeyDef =>
+		key.code === 'Escape' ? { ...key, label: '⚒', symbol: true } : key;
+
+	// Knob: Klick dreht ihn um 30°
+	let knobAngle = $state(0);
+	const RIDGES = 30;
+
+	// Gravur: dunkel auf hellem Case, hell auf dunklem
 	const engravingColor = $derived(legendFor(builder.caseColor.hex, '#ffffff'));
 
-	const wireless = $derived(builder.connectivity.mode === 'wireless');
+	// Naht der Deskmat: vier flache Streifen [x, z, breite, tiefe]
+	const stitches = $derived([
+		[0, matD / 2 - 0.12, matW - 0.2, 0.05],
+		[0, -matD / 2 + 0.12, matW - 0.2, 0.05],
+		[matW / 2 - 0.12, 0, 0.05, matD - 0.2],
+		[-matW / 2 + 0.12, 0, 0.05, matD - 0.2]
+	]);
 </script>
 
 <T.Group>
-	<!-- Gehäuse: Oberkante bei y=0, Tasten sitzen darauf -->
-	<T.Mesh
-		geometry={caseGeometry}
-		material={caseMat}
-		position={[caseX, -CASE_H / 2, 0]}
-		receiveShadow
-	/>
-
-	{#if hasKnob}
-		<!-- Drehregler oben rechts, sitzt in einer flachen Mulde -->
-		<T.Group position={[layout.width / 2 + KNOB_W / 2 + 0.05, 0, -layout.depth / 2 + 0.55]}>
-			<T.Mesh position.y={-0.02}>
-				<T.CylinderGeometry args={[0.52, 0.52, 0.04, 32]} />
-				<T.MeshStandardMaterial color="#0a0a0c" roughness={0.8} />
+	<!-- Deskmat: Stoff-Fläche mit genähter Kante, Board sitzt im oberen Drittel -->
+	{#if deskmat !== 'none'}
+		<T.Group position={[caseX, GROUND_Y + 0.01, 0.9]}>
+			<T.Mesh material={matMat} receiveShadow>
+				<T.BoxGeometry args={[matW, 0.05, matD]} />
 			</T.Mesh>
-			<T.Mesh
-				material={knobMat}
-				position.y={0.22}
-				rotation.y={knobAngle}
-				castShadow
-				onclick={(e: IntersectionEvent<MouseEvent>) => {
-					e.stopPropagation();
-					knobAngle += Math.PI / 6;
-				}}
-				onpointerenter={() => (document.body.style.cursor = 'pointer')}
-				onpointerleave={() => (document.body.style.cursor = 'auto')}
-			>
-				<T.CylinderGeometry args={[0.42, 0.44, 0.44, 24]} />
-			</T.Mesh>
-			<!-- Indikator-Kerbe, dreht mit -->
-			<T.Group rotation.y={knobAngle}>
-				<T.Mesh position={[0, 0.45, -0.3]}>
-					<T.BoxGeometry args={[0.05, 0.02, 0.16]} />
-					<T.MeshStandardMaterial color="#16161a" roughness={0.6} />
+			{#each stitches as [x, z, w, d], i (i)}
+				<T.Mesh material={stitchMat} position={[x, 0.026, z]}>
+					<T.BoxGeometry args={[w, 0.004, d]} />
 				</T.Mesh>
-			</T.Group>
+			{/each}
 		</T.Group>
 	{/if}
 
-	{#if builder.engraving}
-		<!-- Gravur auf der vorderen Case-Kante, rechts unten -->
+	<!-- Gehäuse: Extrusion mit Fase, Unterkante bei -CASE_H, Oberkante bei 0 -->
+	<T.Mesh
+		geometry={caseGeo}
+		material={caseMat}
+		position={[caseX, -CASE_H, 0]}
+		rotation.x={-Math.PI / 2}
+		receiveShadow
+		castShadow
+	/>
+	<!-- Seam: Metallband im unteren Drittel, Messing bei Messingplatte -->
+	<T.Mesh
+		geometry={seamGeo}
+		material={metalMat}
+		position={[caseX, -CASE_H * 0.62, 0]}
+		rotation.x={-Math.PI / 2}
+	/>
+
+	<!-- Badge hinten rechts: Messing/Stahl-Plakette mit Schriftzug -->
+	<T.Group position={[caseX + caseW / 2 - 1.9, -CASE_H * 0.3, rearZ - 0.012]}>
+		<T.Mesh material={metalMat}>
+			<T.BoxGeometry args={[2.4, 0.3, 0.024]} />
+		</T.Mesh>
 		<Text
-			text={builder.engraving}
+			text="SWITCHFORGE"
 			font={fontUrl}
-			fontSize={0.2}
-			letterSpacing={0.12}
-			anchorX="right"
+			fontSize={0.13}
+			letterSpacing={0.25}
+			color="#101013"
+			anchorX="center"
 			anchorY="middle"
-			color={engravingColor}
-			fillOpacity={0.6}
-			position={[caseX + caseW / 2 - 0.6, -CASE_H * 0.5, caseD / 2 + 0.002]}
+			position={[0, 0, -0.013]}
+			rotation.y={Math.PI}
 		/>
-	{/if}
+	</T.Group>
 
 	<!-- USB-C-Port hinten mittig: dunkle Buchse mit Metallrahmen -->
-	<T.Group position={[caseX, -CASE_H * 0.45, -caseD / 2]}>
+	<T.Group position={[caseX, -CASE_H * 0.45, rearZ]}>
 		<T.Mesh material={portRimMat} position.z={-0.01}>
 			<T.BoxGeometry args={[0.72, 0.3, 0.06]} />
 		</T.Mesh>
@@ -286,7 +306,7 @@
 
 	{#if wireless}
 		<!-- Wireless: Schiebeschalter hinten links + Dongle-Slot neben dem USB-Port -->
-		<T.Group position={[caseX - caseW / 2 + 1.6, -CASE_H * 0.45, -caseD / 2]}>
+		<T.Group position={[caseX - caseW / 2 + 1.6, -CASE_H * 0.45, rearZ]}>
 			<T.Mesh material={portMat} position.z={-0.01}>
 				<T.BoxGeometry args={[0.5, 0.18, 0.06]} />
 			</T.Mesh>
@@ -294,11 +314,17 @@
 				<T.BoxGeometry args={[0.18, 0.12, 0.06]} />
 			</T.Mesh>
 		</T.Group>
-		<T.Group position={[caseX + 1.1, -CASE_H * 0.45, -caseD / 2]}>
+		<T.Group position={[caseX + 1.1, -CASE_H * 0.45, rearZ]}>
 			<T.Mesh material={portMat} position.z={-0.01}>
 				<T.BoxGeometry args={[0.36, 0.14, 0.06]} />
 			</T.Mesh>
 		</T.Group>
+	{:else}
+		<!-- Spiralkabel in Akzentfarbe, mit Stecker am Port -->
+		<T.Mesh material={portRimMat} position={[caseX, -CASE_H * 0.45, rearZ - 0.16]}>
+			<T.BoxGeometry args={[0.5, 0.2, 0.28]} />
+		</T.Mesh>
+		<T.Mesh geometry={cableGeo} material={cableMat} castShadow />
 	{/if}
 
 	<!-- Gummifüsse an den vier Ecken -->
@@ -312,6 +338,62 @@
 			</T.Mesh>
 		{/each}
 	{/each}
+
+	{#if hasKnob}
+		<!-- Drehregler: gerändelter Zylinder (30 Rippen), dunkle Kappe, Kerbe -->
+		<T.Group position={[layout.width / 2 + KNOB_W / 2 + 0.05, 0, -layout.depth / 2 + 0.55]}>
+			<T.Mesh position.y={-0.005}>
+				<T.CylinderGeometry args={[0.5, 0.5, 0.01, 32]} />
+				<T.MeshStandardMaterial color="#0a0a0c" roughness={0.8} />
+			</T.Mesh>
+			<T.Group rotation.y={knobAngle}>
+				<T.Mesh
+					material={metalMat}
+					position.y={0.15}
+					castShadow
+					onclick={(e: IntersectionEvent<MouseEvent>) => {
+						e.stopPropagation();
+						knobAngle += Math.PI / 6;
+					}}
+					onpointerenter={() => (document.body.style.cursor = 'pointer')}
+					onpointerleave={() => (document.body.style.cursor = 'auto')}
+				>
+					<T.CylinderGeometry args={[0.4, 0.4, 0.3, 48]} />
+				</T.Mesh>
+				{#each { length: RIDGES } as _, i (i)}
+					{@const a = (i / RIDGES) * Math.PI * 2}
+					<T.Mesh
+						material={metalMat}
+						position={[Math.cos(a) * 0.4, 0.15, Math.sin(a) * 0.4]}
+						rotation.y={-a}
+					>
+						<T.BoxGeometry args={[0.035, 0.26, 0.05]} />
+					</T.Mesh>
+				{/each}
+				<T.Mesh material={knobCapMat} position.y={0.31}>
+					<T.CylinderGeometry args={[0.33, 0.33, 0.02, 48]} />
+				</T.Mesh>
+				<T.Mesh material={metalMat} position={[0, 0.325, -0.22]}>
+					<T.BoxGeometry args={[0.04, 0.01, 0.14]} />
+				</T.Mesh>
+			</T.Group>
+		</T.Group>
+	{/if}
+
+	{#if builder.engraving}
+		<!-- Gravur auf der vorderen Case-Kante, rechts -->
+		<Text
+			text={builder.engraving}
+			font={fontUrl}
+			fontSize={0.2}
+			letterSpacing={0.12}
+			anchorX="right"
+			anchorY="middle"
+			color={engravingColor}
+			fillOpacity={0.6}
+			position={[caseX + caseW / 2 - 0.6, -CASE_H * 0.36, caseD / 2 + 0.002]}
+		/>
+	{/if}
 
 	<!-- Platte, sichtbar in den Spalten zwischen den Tasten (trägt das Backlight) -->
 	<T.Mesh material={plateMat} position.y={PLATE_H / 2} receiveShadow>
@@ -327,10 +409,10 @@
 	<T.Group position.y={PLATE_H}>
 		{#each layout.keys as key (key.id)}
 			<Keycap
-				def={key}
+				def={noveltyEsc(key)}
 				geometry={keyGeometries.get(key.w)!}
-				material={key.accent ? keyAccentMat : keyBaseMat}
-				legendColor={key.accent ? legendAccent : legendBase}
+				material={key.code === 'Escape' ? keyNoveltyMat : key.accent ? keyAccentMat : keyBaseMat}
+				legendColor={legendColor(key)}
 				height={KEY_H}
 				gap={GAP}
 			/>
@@ -343,14 +425,14 @@
 	</T.Mesh>
 	<T.PointLight
 		position={[0, -CASE_H + 0.2, 0]}
-		color={underglow}
+		color={builder.keycapSet.colors.accent}
 		intensity={12}
 		distance={8}
 		decay={2}
 	/>
 
 	<!-- Boden: fängt Schatten und Underglow -->
-	<T.Mesh position.y={-CASE_H - 0.06} rotation.x={-Math.PI / 2} receiveShadow>
+	<T.Mesh position.y={GROUND_Y} rotation.x={-Math.PI / 2} receiveShadow>
 		<T.PlaneGeometry args={[80, 80]} />
 		<T.MeshStandardMaterial color="#0b0b0f" roughness={0.9} metalness={0.05} />
 	</T.Mesh>

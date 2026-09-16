@@ -24,6 +24,10 @@ export interface KeyDef {
 	label: string;
 	/** true → Label kommt aus der Symbol-Schrift (DejaVu-Subset), sonst JetBrains Mono */
 	symbol: boolean;
+	/** Zweitbelegung oben auf der Kappe (Shift), z. B. "!" über "1" */
+	shiftLabel?: string;
+	/** Kleines Symbol neben dem Wort, z. B. ↑ bei "Bild" */
+	subLabel?: string;
 	/** KeyboardEvent.code, für physisches Tippen */
 	code: string;
 	/** Breite in Units */
@@ -75,50 +79,77 @@ const CODE_BY_LABEL: Record<string, string> = {
 };
 
 /**
- * Anzeige-Labels pro Code. Symbole statt Wörter, wo es die Konvention ist
- * (⌫ Backspace, ⏎ Enter …). Alles andere zeigt das Layout-Token als Text.
+ * Aufdrucke pro Code, so wie sie auf echten Tastaturen stehen.
+ *   en / de      Hauptlegende (Symbol oder Wort)
+ *   shiftEn/De   Zweitbelegung, steht oben auf der Kappe (! " § …)
+ *   subDe        kleines Symbol neben dem Wort (Bild↑ / Bild↓)
+ * Fehlt `de`, gilt `en` für beide Sprachen.
  */
-const DISPLAY: Record<string, string> = {
-	Backspace: '⌫',
-	Enter: '⏎',
-	Tab: '⇥',
-	CapsLock: '⇪',
-	ShiftLeft: '⇧',
-	ShiftRight: '⇧',
-	MetaLeft: '⊞',
-	MetaRight: '⊞',
-	ContextMenu: '☰',
-	Delete: '⌦',
-	PageUp: '⇞',
-	PageDown: '⇟',
-	Home: '↖',
-	End: '↘',
-	ArrowUp: '↑',
-	ArrowDown: '↓',
-	ArrowLeft: '←',
-	ArrowRight: '→'
-};
-const SYMBOLS = new Set(Object.values(DISPLAY));
+interface LabelSpec {
+	en: string;
+	de?: string;
+	shiftEn?: string;
+	shiftDe?: string;
+	subDe?: string;
+}
 
-/**
- * Deutsche Beschriftung (QWERTZ) für dieselben physischen Positionen.
- * KeyboardEvent.code ist positionsbezogen: Wer auf einer deutschen Tastatur
- * "Z" drückt, erzeugt code "KeyY" – und genau diese Taste ist hier mit "Z"
- * beschriftet. Physisches Tippen stimmt also in beiden Sprachen.
- */
-const DE_LABELS: Record<string, string> = {
-	KeyY: 'Z',
-	KeyZ: 'Y',
-	BracketLeft: 'Ü',
-	BracketRight: '+',
-	Semicolon: 'Ö',
-	Quote: 'Ä',
-	Backslash: '#',
-	Minus: 'ß',
-	Equal: '´',
-	Backquote: '^',
-	Slash: '-'
+const LABELS: Record<string, LabelSpec> = {
+	// Symbole (sprachunabhängig)
+	Backspace: { en: '⌫' },
+	Enter: { en: '⏎' },
+	Tab: { en: '⇥' },
+	CapsLock: { en: '⇪' },
+	ShiftLeft: { en: '⇧' },
+	ShiftRight: { en: '⇧' },
+	MetaLeft: { en: '⊞' },
+	MetaRight: { en: '⊞' },
+	ContextMenu: { en: '☰' },
+	ArrowUp: { en: '↑' },
+	ArrowDown: { en: '↓' },
+	ArrowLeft: { en: '←' },
+	ArrowRight: { en: '→' },
+	// Wörter – deutsch beschriftet wie auf einer DE-Tastatur
+	ControlLeft: { en: 'Ctrl', de: 'Strg' },
+	ControlRight: { en: 'Ctrl', de: 'Strg' },
+	AltRight: { en: 'Alt', de: 'AltGr' },
+	Delete: { en: 'Del', de: 'Entf' },
+	Insert: { en: 'Ins', de: 'Einfg' },
+	Home: { en: 'Home', de: 'Pos1' },
+	End: { en: 'End', de: 'Ende' },
+	PageUp: { en: 'PgUp', de: 'Bild', subDe: '↑' },
+	PageDown: { en: 'PgDn', de: 'Bild', subDe: '↓' },
+	PrintScreen: { en: 'PrtSc', de: 'Druck' },
+	ScrollLock: { en: 'ScrLk', de: 'Rollen' },
+	// Zahlenreihe mit Shift-Belegung
+	Digit1: { en: '1', shiftEn: '!', shiftDe: '!' },
+	Digit2: { en: '2', shiftEn: '@', shiftDe: '"' },
+	Digit3: { en: '3', shiftEn: '#', shiftDe: '§' },
+	Digit4: { en: '4', shiftEn: '$', shiftDe: '$' },
+	Digit5: { en: '5', shiftEn: '%', shiftDe: '%' },
+	Digit6: { en: '6', shiftEn: '^', shiftDe: '&' },
+	Digit7: { en: '7', shiftEn: '&', shiftDe: '/' },
+	Digit8: { en: '8', shiftEn: '*', shiftDe: '(' },
+	Digit9: { en: '9', shiftEn: '(', shiftDe: ')' },
+	Digit0: { en: '0', shiftEn: ')', shiftDe: '=' },
+	// Satzzeichen – hier unterscheiden sich QWERTY und QWERTZ am meisten
+	Backquote: { en: '`', de: '^', shiftEn: '~', shiftDe: '°' },
+	Minus: { en: '-', de: 'ß', shiftEn: '_', shiftDe: '?' },
+	Equal: { en: '=', de: '´', shiftEn: '+', shiftDe: '`' },
+	BracketLeft: { en: '[', de: 'Ü', shiftEn: '{' },
+	BracketRight: { en: ']', de: '+', shiftEn: '}', shiftDe: '*' },
+	Backslash: { en: '\\', de: '#', shiftEn: '|', shiftDe: "'" },
+	Semicolon: { en: ';', de: 'Ö', shiftEn: ':' },
+	Quote: { en: "'", de: 'Ä', shiftEn: '"' },
+	Comma: { en: ',', shiftEn: '<', shiftDe: ';' },
+	Period: { en: '.', shiftEn: '>', shiftDe: ':' },
+	Slash: { en: '/', de: '-', shiftEn: '?', shiftDe: '_' },
+	KeyY: { en: 'Y', de: 'Z' },
+	KeyZ: { en: 'Z', de: 'Y' }
 };
+
+/** Zeichen, die aus der Symbol-Schrift kommen müssen (nicht in JetBrains Mono Latin) */
+const SYMBOL_CHARS = new Set('⌫⏎⇥⇪⇧⊞☰↑↓←→'.split(''));
+const isSymbol = (text: string) => [...text].some((ch) => SYMBOL_CHARS.has(ch));
 
 const ACCENT_CODES = new Set([
 	'Escape',
@@ -167,11 +198,24 @@ function buildLayout(size: LayoutSize, rows: RowSpec[], lang: KeyboardLanguage):
 			const w = wRaw ? Number(wRaw) : 1;
 			const [name, codeOverride] = head.split('=');
 			const code = codeOverride ?? codeFor(name);
-			const label = DISPLAY[code] ?? (lang === 'de' ? (DE_LABELS[code] ?? name) : name);
+			const spec = LABELS[code];
+			const label = spec ? (lang === 'de' ? (spec.de ?? spec.en) : spec.en) : name;
+			// DE: eigene Shift-Belegung; hat die Taste ein eigenes DE-Label (Ü, Ö …), ohne
+			// shiftDe bleibt sie leer – sonst würde "{" über dem Ü landen.
+			const shiftLabel = !spec
+				? undefined
+				: lang === 'en'
+					? spec.shiftEn
+					: spec.de !== undefined
+						? spec.shiftDe
+						: (spec.shiftDe ?? spec.shiftEn);
+			const subLabel = spec && lang === 'de' ? spec.subDe : undefined;
 			keys.push({
 				id: `r${rowIndex}-${code}`,
 				label,
-				symbol: SYMBOLS.has(label),
+				symbol: isSymbol(label),
+				shiftLabel,
+				subLabel,
 				code,
 				w,
 				x: x + w / 2,

@@ -16,6 +16,7 @@ import {
 	connectivityOptions,
 	languageOptions,
 	knobOptions,
+	deskmatOptions,
 	ENGRAVING_PRICE_CENTS,
 	ENGRAVING_MAX_LENGTH,
 	ENGRAVING_PATTERN,
@@ -27,7 +28,8 @@ import {
 	type LightingOption,
 	type ConnectivityOption,
 	type LanguageOption,
-	type KnobOption
+	type KnobOption,
+	type DeskmatOption
 } from '$lib/data/catalog';
 
 /** Serialisierbarer Snapshot – wandert in den Cart und zu Stripe */
@@ -41,6 +43,7 @@ export interface BuildConfig {
 	connectivityId: string;
 	languageId: string;
 	knobId: string;
+	deskmatId: string;
 	/** Freitext, max. ENGRAVING_MAX_LENGTH Zeichen, leer = keine Gravur */
 	engraving: string;
 }
@@ -55,6 +58,7 @@ export interface ResolvedBuild {
 	connectivity: ConnectivityOption;
 	language: LanguageOption;
 	knob: KnobOption;
+	deskmat: DeskmatOption;
 	engraving: string;
 }
 
@@ -67,6 +71,7 @@ export interface PriceBreakdown {
 	lighting: number;
 	connectivity: number;
 	knob: number;
+	deskmat: number;
 	engraving: number;
 	total: number;
 }
@@ -89,6 +94,7 @@ export function resolveBuild(config: BuildConfig): ResolvedBuild {
 		connectivity: findOrFallback(connectivityOptions, config.connectivityId),
 		language: findOrFallback(languageOptions, config.languageId),
 		knob: findOrFallback(knobOptions, config.knobId),
+		deskmat: findOrFallback(deskmatOptions, config.deskmatId),
 		engraving: sanitizeEngraving(config.engraving)
 	};
 }
@@ -116,6 +122,7 @@ export function isValidConfig(config: unknown): config is BuildConfig {
 		has(connectivityOptions, c.connectivityId) &&
 		has(languageOptions, c.languageId) &&
 		has(knobOptions, c.knobId) &&
+		has(deskmatOptions, c.deskmatId) &&
 		typeof c.engraving === 'string' &&
 		c.engraving.length <= ENGRAVING_MAX_LENGTH &&
 		ENGRAVING_PATTERN.test(c.engraving)
@@ -132,6 +139,7 @@ export function computePrice(build: ResolvedBuild): PriceBreakdown {
 	const lighting = build.lighting.priceDeltaCents;
 	const connectivity = build.connectivity.priceDeltaCents;
 	const knob = build.knob.priceDeltaCents;
+	const deskmat = build.deskmat.priceDeltaCents;
 	const engraving = build.engraving ? ENGRAVING_PRICE_CENTS : 0;
 	return {
 		baseKit,
@@ -142,9 +150,19 @@ export function computePrice(build: ResolvedBuild): PriceBreakdown {
 		lighting,
 		connectivity,
 		knob,
+		deskmat,
 		engraving,
 		total:
-			baseKit + caseColor + switches + keycaps + plate + lighting + connectivity + knob + engraving
+			baseKit +
+			caseColor +
+			switches +
+			keycaps +
+			plate +
+			lighting +
+			connectivity +
+			knob +
+			deskmat +
+			engraving
 	};
 }
 
@@ -165,6 +183,7 @@ export function buildDescription(build: ResolvedBuild): string {
 		build.connectivity.name,
 		`Layout ${build.language.name}`,
 		build.knob.enabled ? 'Knob' : null,
+		build.deskmat.style !== 'none' ? `Deskmat ${build.deskmat.name}` : null,
 		build.engraving ? `Gravur "${build.engraving}"` : null
 	]
 		.filter(Boolean)

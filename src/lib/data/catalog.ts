@@ -290,7 +290,35 @@ export const knobOptions: KnobOption[] = [
 		name: 'Knob',
 		enabled: true,
 		priceDeltaCents: 1900,
-		description: 'Gerändelter Drehregler oben rechts – Lautstärke, Scrollen, Zoom.'
+		description: 'Gerändelter Drehregler oben rechts, Metall passend zur Platte.'
+	}
+];
+
+export interface DeskmatOption {
+	id: string;
+	name: string;
+	/** 'none' = keine Matte, 'charcoal' = dunkel, 'match' = Keycap-Akzentfarbe */
+	style: 'none' | 'charcoal' | 'match';
+	priceDeltaCents: number;
+	description: string;
+}
+
+/** Deskmat als Zusatz – liegt in der Szene unter dem Board */
+export const deskmatOptions: DeskmatOption[] = [
+	{ id: 'no-mat', name: 'Ohne', style: 'none', priceDeltaCents: 0, description: '' },
+	{
+		id: 'mat-charcoal',
+		name: 'Charcoal',
+		style: 'charcoal',
+		priceDeltaCents: 2900,
+		description: '900 × 400 mm, Stoff auf Gummi, genähte Kante.'
+	},
+	{
+		id: 'mat-match',
+		name: 'Match',
+		style: 'match',
+		priceDeltaCents: 3400,
+		description: 'Farblich auf das Keycap-Set abgestimmt.'
 	}
 ];
 
@@ -335,5 +363,6 @@ export const defaultSelection = {
 	connectivityId: 'wired',
 	languageId: 'de',
 	knobId: 'no-knob',
+	deskmatId: 'no-mat',
 	engraving: ''
 } as const;
