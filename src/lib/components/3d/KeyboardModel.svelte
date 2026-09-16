@@ -23,11 +23,14 @@
 		SRGBColorSpace,
 		Vector3
 	} from 'three';
-	import { builder } from '$lib/stores/builderState.svelte';
+	import { builder, type BuilderState } from '$lib/stores/builderState.svelte';
 	import { getLayout, type KeyDef } from '$lib/data/layouts';
 	import { caseGeometry, seamGeometry, keycapGeometry, coiledCableGeometry } from './geometry';
 	import Keycap from './Keycap.svelte';
 	import fontUrl from '@fontsource/jetbrains-mono/files/jetbrains-mono-latin-500-normal.woff?url';
+
+	/** Welcher State gerendert wird – Standard ist der Konfigurator, die Landing bringt ihren eigenen */
+	let { build = builder }: { build?: BuilderState } = $props();
 
 	interactivity();
 	const { invalidate } = useThrelte();
@@ -40,10 +43,10 @@
 	const PLATE_H = 0.06;
 	const GROUND_Y = -CASE_H - 0.06;
 
-	const layout = $derived(getLayout(builder.baseKit.layout, builder.language.id));
-	const wireless = $derived(builder.connectivity.mode === 'wireless');
-	const lightingMode = $derived(builder.lighting.mode);
-	const deskmat = $derived(builder.deskmat.style);
+	const layout = $derived(getLayout(build.baseKit.layout, build.language.id));
+	const wireless = $derived(build.connectivity.mode === 'wireless');
+	const lightingMode = $derived(build.lighting.mode);
+	const deskmat = $derived(build.deskmat.style);
 
 	const caseW = $derived(layout.width + CASE_MARGIN * 2);
 	const caseD = $derived(layout.depth + CASE_MARGIN * 2);
@@ -94,36 +97,36 @@
 
 	const PLATE_COLORS = { aluminium: '#9aa0a8', brass: '#c9a227', polycarbonate: '#dfe6ee' };
 	/** Seam/Badge in Messing, wenn die Platte Messing ist – sonst Stahl */
-	const trimColor = $derived(builder.plate.material === 'brass' ? '#c9a227' : '#b8bcc4');
+	const trimColor = $derived(build.plate.material === 'brass' ? '#c9a227' : '#b8bcc4');
 
 	$effect(() => {
-		keyBaseMat.color.set(builder.keycapSet.colors.base);
-		keyAccentMat.color.set(builder.keycapSet.colors.accent);
+		keyBaseMat.color.set(build.keycapSet.colors.base);
+		keyAccentMat.color.set(build.keycapSet.colors.accent);
 		// Novelty-Esc: dritte Farbe des Sets (die Legendenfarbe) als Kappe
-		keyNoveltyMat.color.set(builder.keycapSet.colors.legend);
-		cableMat.color.set(builder.keycapSet.colors.accent);
+		keyNoveltyMat.color.set(build.keycapSet.colors.legend);
+		cableMat.color.set(build.keycapSet.colors.accent);
 		invalidate();
 	});
 	$effect(() => {
-		caseMat.color.set(builder.caseColor.hex);
+		caseMat.color.set(build.caseColor.hex);
 		invalidate();
 	});
 	$effect(() => {
 		metalMat.color.set(trimColor);
-		const c = PLATE_COLORS[builder.plate.material];
+		const c = PLATE_COLORS[build.plate.material];
 		plateMat.color.set(c);
-		plateMat.roughness = builder.plate.material === 'polycarbonate' ? 0.5 : 0.28;
-		plateMat.metalness = builder.plate.material === 'polycarbonate' ? 0.1 : 0.95;
+		plateMat.roughness = build.plate.material === 'polycarbonate' ? 0.5 : 0.28;
+		plateMat.metalness = build.plate.material === 'polycarbonate' ? 0.1 : 0.95;
 		invalidate();
 	});
 	$effect(() => {
-		underglowMat.emissive = new Color(builder.keycapSet.colors.accent);
+		underglowMat.emissive = new Color(build.keycapSet.colors.accent);
 		invalidate();
 	});
 	$effect(() => {
 		if (deskmat === 'match') {
-			matMat.color.set(builder.keycapSet.colors.base);
-			stitchMat.color.set(builder.keycapSet.colors.accent);
+			matMat.color.set(build.keycapSet.colors.base);
+			stitchMat.color.set(build.keycapSet.colors.accent);
 		} else {
 			matMat.color.set('#26262c');
 			stitchMat.color.set('#3d3d47');
@@ -190,7 +193,7 @@
 	// kopiert Color-Objekte bei jedem Render, Svelte muss nichts neu rendern.
 	const rgbLegendColors = $derived(new Map(layout.keys.map((k) => [k.id, new Color(1, 1, 1)])));
 	const whiteGlow = $derived(new Color(backlightColor).multiplyScalar(2.4));
-	const set = $derived(builder.keycapSet.colors);
+	const set = $derived(build.keycapSet.colors);
 	const legendBase = $derived(legendFor(set.base, set.legend));
 	const legendAccent = $derived(legendFor(set.accent, set.legend));
 	const legendNovelty = $derived(legendFor(set.legend, set.base));
@@ -220,13 +223,13 @@
 	});
 
 	// Novelty-Esc: eigenes Material + gewählte Glyphe statt "Esc"
-	const noveltyGlyph = $derived(builder.novelty.glyph);
+	const noveltyGlyph = $derived(build.novelty.glyph);
 	const noveltyEsc = (key: KeyDef): KeyDef =>
 		key.code === 'Escape' && noveltyGlyph ? { ...key, label: noveltyGlyph, symbol: true } : key;
 	const isNovelty = (key: KeyDef) => key.code === 'Escape' && !!noveltyGlyph;
 
 	// Gravur: dunkel auf hellem Case, hell auf dunklem
-	const engravingColor = $derived(legendFor(builder.caseColor.hex, '#ffffff'));
+	const engravingColor = $derived(legendFor(build.caseColor.hex, '#ffffff'));
 
 	// Naht der Deskmat: vier flache Streifen [x, z, breite, tiefe]
 	const stitches = $derived([
@@ -332,10 +335,10 @@
 		{/each}
 	{/each}
 
-	{#if builder.engraving}
+	{#if build.engraving}
 		<!-- Gravur auf der vorderen Case-Kante, rechts -->
 		<Text
-			text={builder.engraving}
+			text={build.engraving}
 			font={fontUrl}
 			fontSize={0.2}
 			letterSpacing={0.12}
@@ -377,7 +380,7 @@
 	</T.Mesh>
 	<T.PointLight
 		position={[0, -CASE_H + 0.2, 0]}
-		color={builder.keycapSet.colors.accent}
+		color={build.keycapSet.colors.accent}
 		intensity={12}
 		distance={8}
 		decay={2}

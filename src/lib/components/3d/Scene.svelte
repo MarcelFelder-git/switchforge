@@ -18,13 +18,21 @@
 	import SceneCamera from './SceneCamera.svelte';
 	import KeyboardInput from './KeyboardInput.svelte';
 	import PostProcessing from './PostProcessing.svelte';
+	import { builder, type BuilderState } from '$lib/stores/builderState.svelte';
+
+	let {
+		build = builder,
+		autoRotate = false,
+		shiftX = 0,
+		shiftY = 0
+	}: { build?: BuilderState; autoRotate?: boolean; shiftX?: number; shiftY?: number } = $props();
 </script>
 
 <div class="h-full w-full scanlines">
 	<Canvas dpr={[1, 1.5]} toneMapping={NeutralToneMapping}>
 		<SceneEnvironment />
-		<SceneCamera />
-		<KeyboardInput />
+		<SceneCamera {build} {autoRotate} {shiftX} {shiftY} />
+		<KeyboardInput {build} />
 		<PostProcessing />
 
 		<T.AmbientLight intensity={0.08} />
@@ -52,6 +60,6 @@
 		<!-- Warmes Fill von rechts, sehr schwach -->
 		<T.PointLight position={[10, 4, 4]} intensity={6} color="#f97316" />
 
-		<KeyboardModel />
+		<KeyboardModel {build} />
 	</Canvas>
 </div>

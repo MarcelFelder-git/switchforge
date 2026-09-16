@@ -38,10 +38,18 @@ Deploy: Vercel Hobby (adapter-vercel), Stripe Test-Modus, keine Datenbank. Null 
 
 Node 20 lokal; `engine-strict` ist aus (`.npmrc`), weil `camera-controls` (Browser-Lib via Threlte) Node ≥22 deklariert. Mit Node 22 kann das zurück.
 
+## Routen
+
+- `/` Landing (Hero mit eigenem Showcase-State, Starter-Builds laden per `builder.load()` in `/build`)
+- `/build` Konfigurator · `/about` Case Study · `/checkout/success`
+- 3D-Komponenten nehmen `build?: BuilderState` (nicht `state` – der Name kollidiert mit `$state`), `autoRotate`, `shiftX/shiftY` (View-Offset, kein Modell-Verschieben)
+
 ## Roadmap
 
 1. ✅ Struktur, Config, `builderState` + Pricing
 2. ✅ Layouts als Daten, prozedurales 3D pro Layout, Tippen auf echter Tastatur → Modell + Sound, Shadcn, Lazy-Load der Szene
 3. ✅ Cart (persistent, Tab-Sync), `/api/checkout` (Stripe Checkout, Server-Pricing), Webhook, `/checkout/success`
-4. Deploy auf Vercel + Stripe-Test-Keys + Webhook-Endpoint, echte Sound-Samples, OG-Image, Case Study
-5. ✅ Zubehör (Deskmat, Kabel), Gravur, Novelty-Esc – Knob bewusst verworfen (sah nicht gut aus)
+4. ✅ Hülle: Landing, Case Study (`/about`), gemeinsamer Header
+5. Deploy auf Vercel + Stripe-Test-Keys + Webhook-Endpoint, echte Sound-Samples, OG-Image
+6. Teil zwei: Neon + Drizzle, idempotenter Webhook → Order, Resend-Mail, Status-Seite per Token, Mini-Admin
+7. ✅ Zubehör (Deskmat, Kabel), Gravur, Novelty-Esc – Knob bewusst verworfen (sah nicht gut aus)

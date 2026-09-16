@@ -69,6 +69,6 @@
 			verschickt.
 		</p>
 
-		<Button href="/" variant="outline" class="self-start">Noch eins bauen</Button>
+		<Button href="/build" variant="outline" class="self-start">Noch eins bauen</Button>
 	</main>
 </div>

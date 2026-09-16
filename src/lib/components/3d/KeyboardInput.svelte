@@ -5,13 +5,15 @@
 	Rendert nichts – ist nur wegen der Nähe zur Szene hier einsortiert.
 -->
 <script lang="ts">
-	import { builder } from '$lib/stores/builderState.svelte';
+	import { builder, type BuilderState } from '$lib/stores/builderState.svelte';
 	import { keypress } from '$lib/stores/keypress.svelte';
 	import { getLayout } from '$lib/data/layouts';
 
+	let { build = builder }: { build?: BuilderState } = $props();
+
 	// code → id für das aktuelle Layout
 	const byCode = $derived(
-		new Map(getLayout(builder.baseKit.layout, builder.language.id).keys.map((k) => [k.code, k.id]))
+		new Map(getLayout(build.baseKit.layout, build.language.id).keys.map((k) => [k.code, k.id]))
 	);
 
 	function isTyping(target: EventTarget | null) {

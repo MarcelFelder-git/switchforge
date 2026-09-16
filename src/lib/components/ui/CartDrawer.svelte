@@ -13,6 +13,7 @@
 	import Trash2 from '@lucide/svelte/icons/trash-2';
 	import Pencil from '@lucide/svelte/icons/pencil';
 	import ArrowRight from '@lucide/svelte/icons/arrow-right';
+	import { goto } from '$app/navigation';
 
 	let checkingOut = $state(false);
 	let errorMsg = $state<string | null>(null);
@@ -40,6 +41,7 @@
 		if (!item) return;
 		builder.load(item.config);
 		cart.open = false;
+		goto('/build');
 	}
 </script>
 
@@ -61,7 +63,14 @@
 			{#if cart.lines.length === 0}
 				<div class="rounded-panel border border-dashed border-line p-6 text-center">
 					<p class="text-sm text-ink-muted">Konfiguriere ein Keyboard und leg es hier ab.</p>
-					<Button variant="outline" class="mt-4" onclick={() => (cart.open = false)}>
+					<Button
+						variant="outline"
+						class="mt-4"
+						onclick={() => {
+							cart.open = false;
+							goto('/build');
+						}}
+					>
 						Zum Konfigurator
 					</Button>
 				</div>
