@@ -30,7 +30,7 @@ class KeypressState {
 		this.pressed.add(id);
 		this.strokes += 1;
 		if (!this.muted) {
-			soundEngine.play(builder.switch.soundProfile).catch(() => {});
+			soundEngine.play(builder.switch.soundProfile, builder.plate.material).catch(() => {});
 		}
 	}
 

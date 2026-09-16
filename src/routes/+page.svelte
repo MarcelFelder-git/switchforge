@@ -4,10 +4,14 @@
 	import CartDrawer from '$lib/components/ui/CartDrawer.svelte';
 	import PriceSummary from '$lib/components/ui/PriceSummary.svelte';
 	import { builder } from '$lib/stores/builderState.svelte';
+	import { cart } from '$lib/stores/cart.svelte';
 	import { Button } from '$lib/components/ui/button';
 	import ShoppingCart from '@lucide/svelte/icons/shopping-cart';
 
-	let cartOpen = $state(false);
+	function addToCart() {
+		cart.add(builder.snapshot());
+		cart.open = true;
+	}
 
 	// Three.js + Threlte (~600 KB) erst nach dem ersten Paint laden:
 	// Header, Panel und Preis sind sofort da, die Szene blendet sich ein.
@@ -36,10 +40,14 @@
 		<Button
 			variant="outline"
 			class="hover:border-neon hover:text-neon"
-			onclick={() => (cartOpen = true)}
+			onclick={() => (cart.open = true)}
 		>
 			<ShoppingCart data-icon="inline-start" />
 			Cart
+			{#if cart.count > 0}
+				<span class="rounded-full bg-neon px-1.5 font-mono text-[10px] text-void">{cart.count}</span
+				>
+			{/if}
 		</Button>
 	</header>
 
@@ -64,8 +72,8 @@
 	<aside class="flex flex-col gap-5 border-l border-line metallic p-6 lg:overflow-y-auto">
 		<ConfiguratorPanel />
 		<SoundPreview />
-		<PriceSummary onAddToCart={() => (cartOpen = true)} />
+		<PriceSummary onAddToCart={addToCart} />
 	</aside>
 </div>
 
-<CartDrawer bind:open={cartOpen} />
+<CartDrawer />

@@ -7,7 +7,7 @@
 <script lang="ts">
 	import { T } from '@threlte/core';
 	import { Text } from '@threlte/extras';
-	import type { BufferGeometry, Material } from 'three';
+	import type { BufferGeometry, Material, ColorRepresentation } from 'three';
 	import type { IntersectionEvent } from '@threlte/extras';
 	import type { KeyDef } from '$lib/data/layouts';
 	import { keypress } from '$lib/stores/keypress.svelte';
@@ -17,7 +17,8 @@
 		def: KeyDef;
 		geometry: BufferGeometry;
 		material: Material;
-		legendColor: string;
+		/** String oder Color – Color mit Werten > 1 leuchtet im Bloom (Shine-Through) */
+		legendColor: ColorRepresentation;
 		/** Keycap-Höhe – für die Legenden-Position auf der Oberseite */
 		height: number;
 		/** Innenabstand zwischen Keycaps */

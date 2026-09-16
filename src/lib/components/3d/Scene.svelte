@@ -7,7 +7,8 @@
 	- dpr auf 1.5 gedeckelt: Retina-Displays rendern sonst 4x so viele Pixel
 	  für einen Unterschied, den man bei dunklen Szenen kaum sieht.
 	- Neutral-Tone-Mapping statt ACES: für Produktvisualisierung gemacht,
-	  hält Cyan/Lime satt (ACES entsättigt helle Farben).
+	  hält Cyan/Lime satt (ACES entsättigt helle Farben). Läuft im
+	  PostProcessing-Pass zusammen mit Bloom.
 -->
 <script lang="ts">
 	import { Canvas, T } from '@threlte/core';
@@ -16,6 +17,7 @@
 	import SceneEnvironment from './SceneEnvironment.svelte';
 	import SceneCamera from './SceneCamera.svelte';
 	import KeyboardInput from './KeyboardInput.svelte';
+	import PostProcessing from './PostProcessing.svelte';
 </script>
 
 <div class="h-full w-full scanlines">
@@ -23,6 +25,7 @@
 		<SceneEnvironment />
 		<SceneCamera />
 		<KeyboardInput />
+		<PostProcessing />
 
 		<T.AmbientLight intensity={0.08} />
 		<!-- Key-Light von schräg oben; Schattenkamera eng am Keyboard für scharfe Schatten -->

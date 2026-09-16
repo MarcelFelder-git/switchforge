@@ -5,7 +5,11 @@
  * Der Raw-Body muss unverändert an `constructEvent` gehen – deshalb
  * `request.text()` und nicht `request.json()`.
  *
- * Wird in Schritt 3 (Cart & Checkout) vollständig implementiert.
+ * Ohne Datenbank ist Stripe selbst das "Order-System": Die Session enthält
+ * Konfiguration (metadata), Betrag, Adresse und Zahlungsstatus. Hier wäre
+ * der Ort für Folgeaktionen (Bestätigungs-Mail, Fulfillment-Ticket).
+ *
+ * Lokal testen:  stripe listen --forward-to localhost:5174/api/webhooks/stripe
  */
 import { json, error } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
@@ -30,8 +34,19 @@ export const POST: RequestHandler = async ({ request }) => {
 	}
 
 	switch (event.type) {
-		case 'checkout.session.completed':
-			// TODO Schritt 3: Bestellung in Supabase als "paid" markieren
+		case 'checkout.session.completed': {
+			const session = event.data.object;
+			console.log(
+				`[order] ${session.id} · ${session.customer_details?.email ?? '–'} · ` +
+					`${((session.amount_total ?? 0) / 100).toFixed(2)} ${session.currency?.toUpperCase()} · ` +
+					`${session.payment_status}`
+			);
+			// TODO: Bestätigungs-Mail (z. B. Resend, Free-Tier) – bewusst noch nicht,
+			// bis eine Absender-Domain feststeht.
+			break;
+		}
+		case 'checkout.session.expired':
+			console.log(`[order] Session abgelaufen: ${event.data.object.id}`);
 			break;
 		default:
 			break;

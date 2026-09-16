@@ -8,49 +8,21 @@
  * - Ein einziges `builder`-Objekt wird von 3D-Szene, Panel, Sound-Preview
  *   und Cart gleichzeitig gelesen – jede Änderung propagiert feingranular
  *   nur an die Stellen, die das jeweilige Feld tatsächlich lesen.
+ *
+ * Die eigentliche Preislogik liegt in $lib/pricing.ts (reine Funktionen),
+ * damit der Server denselben Code für die Checkout-Validierung nutzt.
  */
+import { defaultSelection, CURRENCY } from '$lib/data/catalog';
 import {
-	baseKits,
-	caseColors,
-	switchOptions,
-	keycapSets,
-	plateOptions,
-	lightingOptions,
-	defaultSelection,
-	CURRENCY,
-	type BaseKit,
-	type CaseColor,
-	type SwitchOption,
-	type KeycapSet,
-	type PlateOption,
-	type LightingOption
-} from '$lib/data/catalog';
+	resolveBuild,
+	computePrice,
+	buildLabel,
+	type BuildConfig,
+	type PriceBreakdown,
+	type ResolvedBuild
+} from '$lib/pricing';
 
-/** Serialisierbarer Snapshot – wandert in den Cart und zu Stripe */
-export interface BuildConfig {
-	baseKitId: string;
-	caseColorId: string;
-	switchId: string;
-	keycapSetId: string;
-	plateId: string;
-	lightingId: string;
-}
-
-export interface PriceBreakdown {
-	baseKit: number;
-	caseColor: number;
-	switches: number;
-	keycaps: number;
-	plate: number;
-	lighting: number;
-	total: number;
-}
-
-function findOrFallback<T extends { id: string }>(list: T[], id: string): T {
-	// Fallback auf das erste Element, damit ein veralteter/ungültiger
-	// Snapshot (z. B. aus localStorage) den Konfigurator nie kaputt macht.
-	return list.find((item) => item.id === id) ?? list[0];
-}
+export type { BuildConfig, PriceBreakdown };
 
 export class BuilderState {
 	// --- Rohauswahl (nur IDs, damit der State trivial serialisierbar ist) ---
@@ -60,40 +32,38 @@ export class BuilderState {
 	keycapSetId = $state<string>(defaultSelection.keycapSetId);
 	plateId = $state<string>(defaultSelection.plateId);
 	lightingId = $state<string>(defaultSelection.lightingId);
+	connectivityId = $state<string>(defaultSelection.connectivityId);
 
 	// --- Aufgelöste Katalogobjekte ---
-	baseKit: BaseKit = $derived(findOrFallback(baseKits, this.baseKitId));
-	caseColor: CaseColor = $derived(findOrFallback(caseColors, this.caseColorId));
-	switch: SwitchOption = $derived(findOrFallback(switchOptions, this.switchId));
-	keycapSet: KeycapSet = $derived(findOrFallback(keycapSets, this.keycapSetId));
-	plate: PlateOption = $derived(findOrFallback(plateOptions, this.plateId));
-	lighting: LightingOption = $derived(findOrFallback(lightingOptions, this.lightingId));
+	private resolved: ResolvedBuild = $derived(resolveBuild(this.snapshot()));
 
-	// --- Pricing Engine ---
-	// Alles in Cent; die Summe rechnet sich automatisch neu, sobald sich
-	// irgendeine der Abhängigkeiten ändert.
-	price: PriceBreakdown = $derived.by(() => {
-		const baseKit = this.baseKit.priceCents;
-		const caseColor = this.caseColor.priceDeltaCents;
-		const switches = this.switch.pricePerSwitchCents * this.baseKit.keyCount;
-		const keycaps = this.keycapSet.priceCents;
-		const plate = this.plate.priceDeltaCents;
-		const lighting = this.lighting.priceDeltaCents;
-		return {
-			baseKit,
-			caseColor,
-			switches,
-			keycaps,
-			plate,
-			lighting,
-			total: baseKit + caseColor + switches + keycaps + plate + lighting
-		};
-	});
+	get baseKit() {
+		return this.resolved.baseKit;
+	}
+	get caseColor() {
+		return this.resolved.caseColor;
+	}
+	get switch() {
+		return this.resolved.switch;
+	}
+	get keycapSet() {
+		return this.resolved.keycapSet;
+	}
+	get plate() {
+		return this.resolved.plate;
+	}
+	get lighting() {
+		return this.resolved.lighting;
+	}
+	get connectivity() {
+		return this.resolved.connectivity;
+	}
 
-	/** Kurzer, lesbarer Name der aktuellen Konfiguration (Cart-Zeile, Stripe-Line-Item) */
-	label: string = $derived(
-		`${this.baseKit.name} · ${this.caseColor.name} · ${this.switch.name} · ${this.keycapSet.name} · ${this.plate.name}-Plate`
-	);
+	// --- Pricing Engine: rechnet sich neu, sobald sich irgendeine ID ändert ---
+	price: PriceBreakdown = $derived(computePrice(this.resolved));
+
+	/** Kurzer, lesbarer Name der aktuellen Konfiguration */
+	label: string = $derived(buildLabel(this.resolved));
 
 	// --- Mutationen ---
 	setBaseKit(id: string) {
@@ -114,6 +84,9 @@ export class BuilderState {
 	setLighting(id: string) {
 		this.lightingId = id;
 	}
+	setConnectivity(id: string) {
+		this.connectivityId = id;
+	}
 
 	reset() {
 		this.load(defaultSelection);
@@ -127,7 +100,8 @@ export class BuilderState {
 			switchId: this.switchId,
 			keycapSetId: this.keycapSetId,
 			plateId: this.plateId,
-			lightingId: this.lightingId
+			lightingId: this.lightingId,
+			connectivityId: this.connectivityId
 		};
 	}
 
@@ -139,6 +113,7 @@ export class BuilderState {
 		this.keycapSetId = config.keycapSetId;
 		this.plateId = config.plateId;
 		this.lightingId = config.lightingId;
+		this.connectivityId = config.connectivityId;
 	}
 }
 
@@ -152,7 +127,7 @@ const priceFormatter = new Intl.NumberFormat('de-CH', {
 	currency: CURRENCY
 });
 
-/** Cent → formatierter Preisstring, z. B. 17900 → "€ 179.00" */
+/** Cent → formatierter Preisstring, z. B. 17900 → "EUR 179.00" */
 export function formatPrice(cents: number): string {
 	return priceFormatter.format(cents / 100);
 }

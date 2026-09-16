@@ -15,6 +15,7 @@
 		keycapSets,
 		plateOptions,
 		lightingOptions,
+		connectivityOptions,
 		type SwitchType
 	} from '$lib/data/catalog';
 	import { cn } from '$lib/utils';
@@ -205,4 +206,23 @@
 		<p class="mt-2 font-mono text-[10px] text-ink-faint">{builder.lighting.description}</p>
 	{/snippet}
 	{@render section('06', 'Lighting', builder.lighting.name, lightingBody)}
+
+	{#snippet connectivityBody()}
+		<div class="grid grid-cols-2 gap-2">
+			{#each connectivityOptions as conn (conn.id)}
+				<button
+					class={cn(option, 'px-3 py-2.5', builder.connectivityId === conn.id ? active : idle)}
+					aria-pressed={builder.connectivityId === conn.id}
+					onclick={() => builder.setConnectivity(conn.id)}
+				>
+					<span class="block text-sm font-medium text-ink">{conn.name}</span>
+					<span class="block font-mono text-[10px] text-ink-muted">
+						{conn.mode === 'wired' ? 'USB-C' : 'BT 5.3 · 2.4 GHz'} · {delta(conn.priceDeltaCents)}
+					</span>
+				</button>
+			{/each}
+		</div>
+		<p class="mt-2 font-mono text-[10px] text-ink-faint">{builder.connectivity.description}</p>
+	{/snippet}
+	{@render section('07', 'Connectivity', builder.connectivity.name, connectivityBody)}
 </div>

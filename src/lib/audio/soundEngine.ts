@@ -15,7 +15,7 @@
  * `unlock()` muss deshalb aus einem Click-/Keydown-Handler aufgerufen werden.
  */
 import type { SwitchType } from '$lib/data/catalog';
-import { synthesize } from './synth';
+import { synthesize, type PlateMaterial } from './synth';
 
 const SAMPLE_PATHS: Record<SwitchType, string> = {
 	linear: '/audio/linear.mp3',
@@ -25,8 +25,9 @@ const SAMPLE_PATHS: Record<SwitchType, string> = {
 
 class SoundEngine {
 	private ctx: AudioContext | null = null;
-	private buffers = new Map<SwitchType, AudioBuffer>();
-	private loading = new Map<SwitchType, Promise<AudioBuffer>>();
+	// Cache-Key: Profil + Platte (die Platte verändert den synthetischen Klang)
+	private buffers = new Map<string, AudioBuffer>();
+	private loading = new Map<string, Promise<AudioBuffer>>();
 	private master: GainNode | null = null;
 	private _volume = 0.8;
 
@@ -48,12 +49,13 @@ class SoundEngine {
 		}
 	}
 
-	/** Sample vorladen – idealerweise, sobald ein Switch-Typ ausgewählt wird */
-	async preload(profile: SwitchType): Promise<AudioBuffer> {
-		const cached = this.buffers.get(profile);
+	/** Sample vorladen – idealerweise, sobald Switch oder Platte gewählt werden */
+	async preload(profile: SwitchType, plate: PlateMaterial = 'aluminium'): Promise<AudioBuffer> {
+		const key = `${profile}:${plate}`;
+		const cached = this.buffers.get(key);
 		if (cached) return cached;
 
-		const pending = this.loading.get(profile);
+		const pending = this.loading.get(key);
 		if (pending) return pending;
 
 		if (!this.ctx) await this.unlock();
@@ -67,14 +69,14 @@ class SoundEngine {
 				return res.arrayBuffer();
 			})
 			.then((data) => ctx.decodeAudioData(data))
-			.catch(() => synthesize(profile, ctx))
+			.catch(() => synthesize(profile, ctx, plate))
 			.then((buffer) => {
-				this.buffers.set(profile, buffer);
-				this.loading.delete(profile);
+				this.buffers.set(key, buffer);
+				this.loading.delete(key);
 				return buffer;
 			});
 
-		this.loading.set(profile, task);
+		this.loading.set(key, task);
 		return task;
 	}
 
@@ -82,9 +84,9 @@ class SoundEngine {
 	 * Sample abspielen. Leichte zufällige Pitch-Variation, damit sich
 	 * schnelles Tippen nicht wie ein Loop anhört.
 	 */
-	async play(profile: SwitchType, velocity = 1): Promise<void> {
+	async play(profile: SwitchType, plate: PlateMaterial = 'aluminium', velocity = 1): Promise<void> {
 		await this.unlock();
-		const buffer = await this.preload(profile);
+		const buffer = await this.preload(profile, plate);
 		if (!this.ctx || !this.master) return;
 
 		const source = this.ctx.createBufferSource();

@@ -19,9 +19,9 @@
 		soundEngine.setVolume(volume / 100);
 	});
 
-	// Sample vorladen, sobald sich der Switch-Typ ändert
+	// Sample vorladen, sobald sich Switch-Typ oder Platte ändern
 	$effect(() => {
-		soundEngine.preload(builder.switch.soundProfile).catch(() => {});
+		soundEngine.preload(builder.switch.soundProfile, builder.plate.material).catch(() => {});
 	});
 
 	// Probe-Anschlag: tippt "F" und "J" nacheinander im 3D-Modell
@@ -37,7 +37,7 @@
 <section class="flex flex-col gap-3 border-t border-line/70 pt-5">
 	<header class="flex items-baseline justify-between gap-3">
 		<h3 class="font-mono text-[11px] tracking-[0.2em] text-ink-faint uppercase">
-			<span class="text-neon/80">07</span> / Sound
+			<span class="text-neon/80">08</span> / Sound
 		</h3>
 		<span class="font-mono text-[11px] text-ink-muted">
 			{keypress.strokes > 0 ? `${keypress.strokes} Anschläge` : 'Tipp auf deiner Tastatur'}

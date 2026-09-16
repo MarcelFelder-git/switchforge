@@ -15,7 +15,20 @@
  * Fallback für fehlende /static/audio/*.mp3 – und die Null-Kosten-Variante:
  * kein Asset, keine Lizenz, kein Netzwerk.
  */
-import type { SwitchType } from '$lib/data/catalog';
+import type { SwitchType, PlateOption } from '$lib/data/catalog';
+
+export type PlateMaterial = PlateOption['material'];
+
+/**
+ * Die Platte färbt den Klang: Messing ist steif und schwer → höhere, längere
+ * Resonanzen ("ping"); Polycarbonat ist weich → tiefer, gedämpfter.
+ * Multiplikatoren auf Moden-Frequenz, Güte und Tiefpass.
+ */
+const PLATE_VOICING: Record<PlateMaterial, { f: number; q: number; lp: number }> = {
+	aluminium: { f: 1, q: 1, lp: 1 },
+	brass: { f: 1.18, q: 1.4, lp: 1.35 },
+	polycarbonate: { f: 0.84, q: 0.65, lp: 0.7 }
+};
 
 interface Mode {
 	/** Eigenfrequenz in Hz */
@@ -109,8 +122,13 @@ function noiseBurst(ctx: BaseAudioContext, len: number): AudioBuffer {
 	return buf;
 }
 
-export async function synthesize(profile: SwitchType, ctx: BaseAudioContext): Promise<AudioBuffer> {
+export async function synthesize(
+	profile: SwitchType,
+	ctx: BaseAudioContext,
+	plate: PlateMaterial = 'aluminium'
+): Promise<AudioBuffer> {
 	const p = PROFILES[profile];
+	const voice = PLATE_VOICING[plate];
 	const sr = ctx.sampleRate;
 	const off = new OfflineAudioContext(1, Math.ceil(p.duration * sr), sr);
 
@@ -118,7 +136,7 @@ export async function synthesize(profile: SwitchType, ctx: BaseAudioContext): Pr
 	master.gain.value = 1;
 	const lp = off.createBiquadFilter();
 	lp.type = 'lowpass';
-	lp.frequency.value = p.lowpass;
+	lp.frequency.value = Math.min(p.lowpass * voice.lp, sr / 2 - 100);
 	master.connect(lp).connect(off.destination);
 
 	// Resonatoren einmal aufbauen, alle Impulse speisen sie parallel
@@ -126,8 +144,8 @@ export async function synthesize(profile: SwitchType, ctx: BaseAudioContext): Pr
 	for (const m of p.modes) {
 		const bp = off.createBiquadFilter();
 		bp.type = 'bandpass';
-		bp.frequency.value = m.f;
-		bp.Q.value = m.q;
+		bp.frequency.value = m.f * voice.f;
+		bp.Q.value = m.q * voice.q;
 		const g = off.createGain();
 		g.gain.value = m.g;
 		resonatorIn.connect(bp).connect(g).connect(master);

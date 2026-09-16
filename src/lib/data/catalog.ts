@@ -116,7 +116,10 @@ export const caseColors: CaseColor[] = [
 	{ id: 'neon-violet', name: 'Neon Violet', hex: '#7c3aed', priceDeltaCents: 1500 },
 	{ id: 'acid-lime', name: 'Acid Lime', hex: '#a3e635', priceDeltaCents: 1500 },
 	{ id: 'cyber-cyan', name: 'Cyber Cyan', hex: '#22d3ee', priceDeltaCents: 1500 },
-	{ id: 'blood-orange', name: 'Blood Orange', hex: '#f97316', priceDeltaCents: 1500 }
+	{ id: 'blood-orange', name: 'Blood Orange', hex: '#f97316', priceDeltaCents: 1500 },
+	{ id: 'bone', name: 'Bone', hex: '#e6e1d6', priceDeltaCents: 1000 },
+	{ id: 'deep-navy', name: 'Deep Navy', hex: '#1e3a8a', priceDeltaCents: 1000 },
+	{ id: 'rose', name: 'Rose', hex: '#be185d', priceDeltaCents: 1500 }
 ];
 
 export const switchOptions: SwitchOption[] = [
@@ -174,6 +177,34 @@ export const keycapSets: KeycapSet[] = [
 		colors: { base: '#2e1065', accent: '#f472b6', legend: '#fdf2f8' },
 		priceCents: 9900,
 		material: 'ABS'
+	},
+	{
+		id: 'bone',
+		name: 'Bone',
+		colors: { base: '#e7e2d6', accent: '#2b2b30', legend: '#1a1a1d' },
+		priceCents: 8900,
+		material: 'PBT'
+	},
+	{
+		id: 'arctic',
+		name: 'Arctic',
+		colors: { base: '#e3ebf2', accent: '#22d3ee', legend: '#0f172a' },
+		priceCents: 8900,
+		material: 'PBT'
+	},
+	{
+		id: 'peach',
+		name: 'Peach',
+		colors: { base: '#f6d5c3', accent: '#f97316', legend: '#3b1d0f' },
+		priceCents: 9400,
+		material: 'PBT'
+	},
+	{
+		id: 'olive',
+		name: 'Olive',
+		colors: { base: '#3f4a2a', accent: '#c5d86d', legend: '#f3f5e6' },
+		priceCents: 8900,
+		material: 'PBT'
 	}
 ];
 
@@ -183,21 +214,46 @@ export const plateOptions: PlateOption[] = [
 		name: 'Aluminium',
 		material: 'aluminium',
 		priceDeltaCents: 0,
-		description: 'Standard. Ausgewogen, leicht.'
+		description: 'Ausgewogener Klang, leicht.'
 	},
 	{
 		id: 'polycarbonate',
 		name: 'Polycarbonate',
 		material: 'polycarbonate',
 		priceDeltaCents: 1900,
-		description: 'Weicher, tieferer Klang.'
+		description: 'Weicher, tieferer Klang – hörbar in der Vorschau.'
 	},
 	{
 		id: 'brass',
 		name: 'Brass',
 		material: 'brass',
 		priceDeltaCents: 4900,
-		description: 'Schwer, hell, resonant. Der Klassiker.'
+		description: 'Heller, resonanter Klang – hörbar in der Vorschau.'
+	}
+];
+
+export interface ConnectivityOption {
+	id: string;
+	name: string;
+	mode: 'wired' | 'wireless';
+	priceDeltaCents: number;
+	description: string;
+}
+
+export const connectivityOptions: ConnectivityOption[] = [
+	{
+		id: 'wired',
+		name: 'Wired',
+		mode: 'wired',
+		priceDeltaCents: 0,
+		description: 'USB-C, abnehmbares Kabel.'
+	},
+	{
+		id: 'wireless',
+		name: 'Wireless',
+		mode: 'wireless',
+		priceDeltaCents: 3900,
+		description: 'Bluetooth 5.3 + 2.4 GHz Dongle, USB-C zum Laden. Schalter hinten links.'
 	}
 ];
 
@@ -214,14 +270,14 @@ export const lightingOptions: LightingOption[] = [
 		name: 'White',
 		mode: 'white',
 		priceDeltaCents: 1900,
-		description: 'Warmweisse Hintergrundbeleuchtung.'
+		description: 'Warmweiss, Legenden leuchten durch.'
 	},
 	{
 		id: 'rgb-light',
 		name: 'RGB Wave',
 		mode: 'rgb',
 		priceDeltaCents: 2900,
-		description: 'Per-Key RGB mit Farbwelle.'
+		description: 'RGB-Farbwelle, Legenden leuchten durch.'
 	}
 ];
 
@@ -232,5 +288,6 @@ export const defaultSelection = {
 	switchId: 'ember-linear',
 	keycapSetId: 'void',
 	plateId: 'aluminium',
-	lightingId: 'no-light'
+	lightingId: 'no-light',
+	connectivityId: 'wired'
 } as const;

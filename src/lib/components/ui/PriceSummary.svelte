@@ -21,7 +21,8 @@
 			},
 			{ label: `Keycaps ${builder.keycapSet.name}`, cents: builder.price.keycaps },
 			{ label: `${builder.plate.name}-Plate`, cents: builder.price.plate, delta: true },
-			{ label: `Lighting ${builder.lighting.name}`, cents: builder.price.lighting, delta: true }
+			{ label: `Lighting ${builder.lighting.name}`, cents: builder.price.lighting, delta: true },
+			{ label: builder.connectivity.name, cents: builder.price.connectivity, delta: true }
 		].filter((l) => !l.delta || l.cents > 0)
 	);
 </script>

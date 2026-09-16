@@ -40,13 +40,31 @@
 	const caseW = $derived(layout.width + CASE_MARGIN * 2);
 	const caseD = $derived(layout.depth + CASE_MARGIN * 2);
 
+	/**
+	 * Keycap-Profil: echte Caps sind oben schmaler als unten (Cherry-Profil).
+	 * Wir verjüngen die Rounded-Box nach oben, indem wir x/z jedes Vertex
+	 * abhängig von seiner Höhe skalieren – billiger als eigene Geometrie.
+	 */
+	function keycapGeometry(w: number): RoundedBoxGeometry {
+		const geo = new RoundedBoxGeometry(w - GAP, KEY_H, 1 - GAP, 3, 0.06);
+		const pos = geo.attributes.position;
+		const TAPER = 0.16; // oben 16 % schmaler
+		for (let i = 0; i < pos.count; i++) {
+			const t = (pos.getY(i) + KEY_H / 2) / KEY_H; // 0 unten … 1 oben
+			const k = 1 - TAPER * t;
+			pos.setX(i, pos.getX(i) * k);
+			pos.setZ(i, pos.getZ(i) * k);
+		}
+		pos.needsUpdate = true;
+		geo.computeVertexNormals();
+		return geo;
+	}
+
 	// --- Geometrien: eine pro Keycap-Breite, geteilt über alle Tasten ---
 	const keyGeometries = $derived.by(() => {
 		const map = new Map<number, RoundedBoxGeometry>();
 		for (const key of layout.keys) {
-			if (!map.has(key.w)) {
-				map.set(key.w, new RoundedBoxGeometry(key.w - GAP, KEY_H, 1 - GAP, 3, 0.07));
-			}
+			if (!map.has(key.w)) map.set(key.w, keycapGeometry(key.w));
 		}
 		return map;
 	});
@@ -73,6 +91,7 @@
 	const portMat = new MeshStandardMaterial({ color: '#0a0a0c', roughness: 0.7, metalness: 0.3 });
 	const portRimMat = new MeshStandardMaterial({ color: '#c8ccd2', roughness: 0.35, metalness: 1 });
 	const footMat = new MeshStandardMaterial({ color: '#1a1a1d', roughness: 0.95 });
+	const switchMat = new MeshStandardMaterial({ color: '#d4d7dc', roughness: 0.4, metalness: 0.8 });
 
 	const PLATE_COLORS = { aluminium: '#9aa0a8', brass: '#c9a227', polycarbonate: '#dfe6ee' };
 
@@ -151,6 +170,15 @@
 
 	const underglow = $derived(builder.keycapSet.colors.accent);
 	const backlightColor = $derived(lightingMode === 'white' ? '#fff3d6' : '#ffffff');
+
+	// Shine-Through: bei Beleuchtung leuchten die Legenden selbst.
+	// Color-Werte > 1 landen im HalfFloat-Buffer und werden vom Bloom erfasst.
+	const legendColor = $derived.by(() => {
+		if (lightingMode === 'none') return builder.keycapSet.colors.legend;
+		return new Color(backlightColor).multiplyScalar(2.4);
+	});
+
+	const wireless = $derived(builder.connectivity.mode === 'wireless');
 </script>
 
 <T.Group>
@@ -166,6 +194,23 @@
 			<T.BoxGeometry args={[0.6, 0.2, 0.08]} />
 		</T.Mesh>
 	</T.Group>
+
+	{#if wireless}
+		<!-- Wireless: Schiebeschalter hinten links + Dongle-Slot neben dem USB-Port -->
+		<T.Group position={[-caseW / 2 + 1.6, -CASE_H * 0.45, -caseD / 2]}>
+			<T.Mesh material={portMat} position.z={-0.01}>
+				<T.BoxGeometry args={[0.5, 0.18, 0.06]} />
+			</T.Mesh>
+			<T.Mesh material={switchMat} position={[0.12, 0, -0.05]}>
+				<T.BoxGeometry args={[0.18, 0.12, 0.06]} />
+			</T.Mesh>
+		</T.Group>
+		<T.Group position={[1.1, -CASE_H * 0.45, -caseD / 2]}>
+			<T.Mesh material={portMat} position.z={-0.01}>
+				<T.BoxGeometry args={[0.36, 0.14, 0.06]} />
+			</T.Mesh>
+		</T.Group>
+	{/if}
 
 	<!-- Gummifüsse an den vier Ecken -->
 	{#each [-1, 1] as sx (sx)}
@@ -186,7 +231,7 @@
 
 	<!-- Backlight-Schein auf die Keycap-Unterseiten -->
 	{#if lightingMode !== 'none'}
-		<T.PointLight position={[0, 0.3, 0]} color={backlightColor} intensity={4} distance={6} />
+		<T.PointLight position={[0, 0.3, 0]} color={backlightColor} intensity={1.2} distance={5} />
 	{/if}
 
 	<!-- Tasten -->
@@ -196,7 +241,7 @@
 				def={key}
 				geometry={keyGeometries.get(key.w)!}
 				material={key.accent ? keyAccentMat : keyBaseMat}
-				legendColor={builder.keycapSet.colors.legend}
+				{legendColor}
 				height={KEY_H}
 				gap={GAP}
 			/>
