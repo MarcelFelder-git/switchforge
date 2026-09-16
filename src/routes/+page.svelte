@@ -1,23 +1,17 @@
 <script lang="ts">
 	import { goto } from '$app/navigation';
-	import { MediaQuery } from 'svelte/reactivity';
 	import SiteHeader from '$lib/components/ui/SiteHeader.svelte';
+	import HeroStory from '$lib/components/landing/HeroStory.svelte';
 	import CartDrawer from '$lib/components/ui/CartDrawer.svelte';
 	import LayoutSilhouette from '$lib/components/ui/LayoutSilhouette.svelte';
 	import { Button } from '$lib/components/ui/button';
-	import { builder, BuilderState, formatPrice } from '$lib/stores/builderState.svelte';
+	import { builder, formatPrice } from '$lib/stores/builderState.svelte';
 	import { resolveBuild, computePrice, type BuildConfig } from '$lib/pricing';
-	import { presets, showcaseConfig } from '$lib/data/presets';
+	import { presets } from '$lib/data/presets';
 	import { baseKits, switchOptions, defaultSelection, type SwitchType } from '$lib/data/catalog';
 	import { soundEngine } from '$lib/audio/soundEngine';
 	import ArrowRight from '@lucide/svelte/icons/arrow-right';
 	import Play from '@lucide/svelte/icons/play';
-
-	// Eigener State fürs Hero-Board – der Konfigurator bleibt unberührt
-	const showcase = new BuilderState();
-	showcase.load({ ...showcaseConfig, deskmatId: 'no-mat' }); // Matte nur in den Renders
-	const scenePromise = import('$lib/components/3d/Scene.svelte');
-	const mobile = new MediaQuery('(max-width: 639px)');
 
 	function start(config: BuildConfig = builder.snapshot()) {
 		builder.load(config);
@@ -94,73 +88,7 @@
 
 	<SiteHeader />
 
-	<!-- HERO -->
-	<section class="relative">
-		<div
-			class="mx-auto grid max-w-7xl items-center gap-8 px-6 pt-14 pb-10 lg:grid-cols-[5fr_7fr] lg:pt-20"
-		>
-			<div class="relative z-10 min-w-0">
-				<span
-					class="inline-flex items-center gap-2 rounded-full border border-line bg-surface/70 px-3 py-1 font-mono text-[10px] tracking-[0.2em] text-ink-muted uppercase"
-				>
-					<span class="size-1.5 rounded-full bg-brand"></span>
-					Neu · Forge 75 mit RGB Wave
-				</span>
-				<h1
-					class="mt-6 font-display text-[44px] leading-[0.95] font-extrabold tracking-tight text-ink sm:text-6xl lg:text-7xl"
-				>
-					Geschmiedet<br />
-					<span class="text-brand">für deine</span><br />
-					Hände.
-				</h1>
-				<p class="mt-6 max-w-md text-base leading-relaxed text-ink-muted sm:text-lg">
-					Layout, Case, Switches, Keycaps, Licht – in 3D konfiguriert, vorher gehört, nach
-					Bestellung gebaut. Ab {formatPrice(fromPrice)}.
-				</p>
-				<div class="mt-8 flex flex-wrap items-center gap-3">
-					<button
-						class="inline-flex h-11 items-center gap-2 rounded-full bg-brand px-6 text-sm font-semibold text-void shadow-[0_0_32px_oklch(0.72_0.2_20/0.45)] transition-transform hover:scale-[1.03] focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:outline-none"
-						onclick={() => start()}
-					>
-						Jetzt konfigurieren <ArrowRight class="size-4" />
-					</button>
-					<Button size="lg" variant="ghost" href="#builds" class="rounded-full text-ink-muted">
-						Builds ansehen
-					</Button>
-				</div>
-				<ul
-					class="mt-8 flex flex-wrap gap-x-6 gap-y-2 font-mono text-[10px] tracking-[0.15em] text-ink-faint uppercase"
-				>
-					<li>Gebaut nach Bestellung</li>
-					<li>30 Tage Rückgabe</li>
-					<li>Versand aus DE</li>
-				</ul>
-			</div>
-
-			<!-- Live-3D: das Argument, das kein Foto ersetzt.
-			     Canvas absolut positioniert, sonst drückt seine intrinsische Breite die Grid-Spalte auf -->
-			<div class="relative -mx-6 h-[380px] min-w-0 sm:h-[460px] lg:mx-0 lg:h-[560px]">
-				<div class="absolute inset-0">
-					{#await scenePromise}
-						<div class="flex h-full items-center justify-center">
-							<span
-								class="animate-pulse font-mono text-[10px] tracking-[0.3em] text-ink-faint uppercase"
-							>
-								Loading
-							</span>
-						</div>
-					{:then { default: Scene }}
-						<Scene build={showcase} autoRotate transparent shiftY={mobile.current ? 0.05 : 0} />
-					{/await}
-				</div>
-				<span
-					class="pointer-events-none absolute bottom-3 left-6 font-mono text-[10px] tracking-[0.2em] text-ink-faint uppercase lg:left-0"
-				>
-					Tipp auf deiner Tastatur ↗ das Board tippt mit
-				</span>
-			</div>
-		</div>
-	</section>
+	<HeroStory />
 
 	<!-- TICKER -->
 	<div class="overflow-hidden border-y border-line bg-surface/50 py-3">

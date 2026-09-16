@@ -37,6 +37,41 @@
 			azimuth: -34,
 			elevation: 22,
 			zoom: 0.8
+		},
+		// Vorlagen für KI-Lifestyle-Shots (Gemini): sauber, ohne Matte
+		{
+			name: 'src-bone-side',
+			config: { ...byId.bone, deskmatId: 'no-mat' },
+			azimuth: 48,
+			elevation: 14,
+			zoom: 0.8
+		},
+		{
+			name: 'src-nightshift-top',
+			config: { ...byId.nightshift, deskmatId: 'no-mat' },
+			azimuth: 0,
+			elevation: 62,
+			zoom: 0.85
+		},
+		{
+			name: 'src-terminal-front',
+			config: { ...byId.terminal, deskmatId: 'no-mat' },
+			azimuth: -12,
+			elevation: 24,
+			zoom: 0.85
+		},
+		{
+			name: 'src-arctic',
+			config: {
+				...byId.bone,
+				keycapSetId: 'arctic',
+				caseColorId: 'bone',
+				lightingId: 'white-light',
+				deskmatId: 'no-mat'
+			},
+			azimuth: 22,
+			elevation: 30,
+			zoom: 0.9
 		}
 	];
 
