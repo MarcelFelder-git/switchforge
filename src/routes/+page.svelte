@@ -90,16 +90,16 @@
 	<section class="relative -mt-px">
 		<div class="relative h-[min(88vh,900px)] min-h-[560px] overflow-hidden">
 			<img
-				src="/img/lifestyle/nightshift.webp"
-				alt="Nightshift-Build auf einem Holzschreibtisch mit Filzmatte, Monitor und Kaffeetasse"
+				src="/img/lifestyle/hero.webp"
+				alt="Nightshift-Build rechts auf einer Filzmatte, links freier Holzschreibtisch, Sukkulente und Spiralkabel"
 				width="1306"
-				height="816"
+				height="702"
 				fetchpriority="high"
-				class="absolute inset-0 h-full w-full object-cover object-[60%_45%]"
+				class="absolute inset-0 h-full w-full object-cover object-[55%_60%]"
 			/>
-			<!-- Verlauf: links lesbar, unten in die Seite -->
+			<!-- Verlauf: links lesbar (Holz ist hell), rechts das Board unangetastet -->
 			<div
-				class="absolute inset-0 bg-[linear-gradient(90deg,oklch(0.1_0.01_260/0.9)_0%,oklch(0.1_0.01_260/0.55)_45%,transparent_75%)]"
+				class="absolute inset-0 bg-[linear-gradient(90deg,oklch(0.1_0.01_260/0.88)_0%,oklch(0.1_0.01_260/0.6)_35%,transparent_58%)]"
 			></div>
 			<div
 				class="absolute inset-x-0 bottom-0 h-40 bg-[linear-gradient(180deg,transparent,var(--color-void))]"
@@ -489,11 +489,14 @@ const price = computePrice(build)    // Integer-Cent`}</code
 		<div
 			class="relative overflow-hidden rounded-3xl border border-line bg-void px-8 py-16 text-center"
 		>
+			<img
+				src="/img/lifestyle/nightshift.webp"
+				alt=""
+				loading="lazy"
+				class="absolute inset-0 h-full w-full object-cover object-center opacity-35"
+			/>
 			<div
-				class="pointer-events-none absolute -top-32 left-1/2 h-[480px] w-[720px] -translate-x-1/2 blur-3xl glow-violet"
-			></div>
-			<div
-				class="pointer-events-none absolute -right-32 -bottom-40 h-[420px] w-[520px] blur-3xl glow-ember"
+				class="absolute inset-0 bg-[radial-gradient(70%_80%_at_50%_50%,oklch(0.1_0.01_260/0.55),oklch(0.1_0.01_260/0.92))]"
 			></div>
 			<h2 class="relative font-display text-4xl font-extrabold text-ink sm:text-6xl">Bau deins.</h2>
 			<p class="relative mx-auto mt-4 max-w-md text-ink-muted">
