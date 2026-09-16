@@ -9,7 +9,7 @@
 import { browser } from '$app/environment';
 import { resolveBuild, computePrice, buildLabel, type BuildConfig } from '$lib/pricing';
 
-const STORAGE_KEY = 'switchforge.cart.v1';
+const STORAGE_KEY = 'switchforge.cart.v2'; // v2: noveltyId statt knobId
 const MAX_QTY = 10;
 
 export interface CartItem {

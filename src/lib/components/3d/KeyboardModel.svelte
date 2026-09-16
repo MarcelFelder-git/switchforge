@@ -38,20 +38,16 @@
 	const CASE_MARGIN = 0.45;
 	const CASE_H = 0.85;
 	const PLATE_H = 0.06;
-	const KNOB_W = 1.5;
 	const GROUND_Y = -CASE_H - 0.06;
 
 	const layout = $derived(getLayout(builder.baseKit.layout, builder.language.id));
-	const hasKnob = $derived(builder.knob.enabled);
 	const wireless = $derived(builder.connectivity.mode === 'wireless');
 	const lightingMode = $derived(builder.lighting.mode);
 	const deskmat = $derived(builder.deskmat.style);
 
-	// Knob braucht rechts 1.5u Platz – das Case wächst und rückt entsprechend
-	const extraW = $derived(hasKnob ? KNOB_W : 0);
-	const caseW = $derived(layout.width + CASE_MARGIN * 2 + extraW);
+	const caseW = $derived(layout.width + CASE_MARGIN * 2);
 	const caseD = $derived(layout.depth + CASE_MARGIN * 2);
-	const caseX = $derived(extraW / 2);
+	const caseX = 0;
 	const rearZ = $derived(-caseD / 2);
 
 	// --- Geometrien: geteilt, bei Layout-Wechsel neu ---
@@ -85,7 +81,7 @@
 		clearcoat: 0.4,
 		clearcoatRoughness: 0.3
 	});
-	const metalMat = new MeshStandardMaterial({ roughness: 0.3, metalness: 1 }); // Seam, Knob, Badge
+	const metalMat = new MeshStandardMaterial({ roughness: 0.3, metalness: 1 }); // Seam, Badge
 	const plateMat = new MeshStandardMaterial({ roughness: 0.28, metalness: 0.95 });
 	const underglowMat = new MeshStandardMaterial({ emissiveIntensity: 2.5, color: '#000000' });
 	const portMat = new MeshStandardMaterial({ color: '#0a0a0c', roughness: 0.7, metalness: 0.3 });
@@ -95,10 +91,9 @@
 	const cableMat = new MeshStandardMaterial({ roughness: 0.6, metalness: 0.05 });
 	const matMat = new MeshStandardMaterial({ roughness: 0.97, metalness: 0 }); // Stoff
 	const stitchMat = new MeshStandardMaterial({ roughness: 0.9, metalness: 0 });
-	const knobCapMat = new MeshStandardMaterial({ color: '#111114', roughness: 0.5, metalness: 0.4 });
 
 	const PLATE_COLORS = { aluminium: '#9aa0a8', brass: '#c9a227', polycarbonate: '#dfe6ee' };
-	/** Seam/Knob/Badge in Messing, wenn die Platte Messing ist – sonst Stahl */
+	/** Seam/Badge in Messing, wenn die Platte Messing ist – sonst Stahl */
 	const trimColor = $derived(builder.plate.material === 'brass' ? '#c9a227' : '#b8bcc4');
 
 	$effect(() => {
@@ -203,7 +198,7 @@
 	function legendColor(key: KeyDef) {
 		if (lightingMode === 'rgb') return rgbLegendColors.get(key.id)!;
 		if (lightingMode === 'white') return whiteGlow;
-		if (key.code === 'Escape') return legendNovelty;
+		if (isNovelty(key)) return legendNovelty;
 		return key.accent ? legendAccent : legendBase;
 	}
 
@@ -224,13 +219,11 @@
 		else wave.stop();
 	});
 
-	// Novelty-Esc: eigenes Material + Forge-Glyphe statt "Esc"
+	// Novelty-Esc: eigenes Material + gewählte Glyphe statt "Esc"
+	const noveltyGlyph = $derived(builder.novelty.glyph);
 	const noveltyEsc = (key: KeyDef): KeyDef =>
-		key.code === 'Escape' ? { ...key, label: '⚒', symbol: true } : key;
-
-	// Knob: Klick dreht ihn um 30°
-	let knobAngle = $state(0);
-	const RIDGES = 30;
+		key.code === 'Escape' && noveltyGlyph ? { ...key, label: noveltyGlyph, symbol: true } : key;
+	const isNovelty = (key: KeyDef) => key.code === 'Escape' && !!noveltyGlyph;
 
 	// Gravur: dunkel auf hellem Case, hell auf dunklem
 	const engravingColor = $derived(legendFor(builder.caseColor.hex, '#ffffff'));
@@ -339,47 +332,6 @@
 		{/each}
 	{/each}
 
-	{#if hasKnob}
-		<!-- Drehregler: gerändelter Zylinder (30 Rippen), dunkle Kappe, Kerbe -->
-		<T.Group position={[layout.width / 2 + KNOB_W / 2 + 0.05, 0, -layout.depth / 2 + 0.55]}>
-			<T.Mesh position.y={-0.005}>
-				<T.CylinderGeometry args={[0.5, 0.5, 0.01, 32]} />
-				<T.MeshStandardMaterial color="#0a0a0c" roughness={0.8} />
-			</T.Mesh>
-			<T.Group rotation.y={knobAngle}>
-				<T.Mesh
-					material={metalMat}
-					position.y={0.15}
-					castShadow
-					onclick={(e: IntersectionEvent<MouseEvent>) => {
-						e.stopPropagation();
-						knobAngle += Math.PI / 6;
-					}}
-					onpointerenter={() => (document.body.style.cursor = 'pointer')}
-					onpointerleave={() => (document.body.style.cursor = 'auto')}
-				>
-					<T.CylinderGeometry args={[0.4, 0.4, 0.3, 48]} />
-				</T.Mesh>
-				{#each { length: RIDGES } as _, i (i)}
-					{@const a = (i / RIDGES) * Math.PI * 2}
-					<T.Mesh
-						material={metalMat}
-						position={[Math.cos(a) * 0.4, 0.15, Math.sin(a) * 0.4]}
-						rotation.y={-a}
-					>
-						<T.BoxGeometry args={[0.035, 0.26, 0.05]} />
-					</T.Mesh>
-				{/each}
-				<T.Mesh material={knobCapMat} position.y={0.31}>
-					<T.CylinderGeometry args={[0.33, 0.33, 0.02, 48]} />
-				</T.Mesh>
-				<T.Mesh material={metalMat} position={[0, 0.325, -0.22]}>
-					<T.BoxGeometry args={[0.04, 0.01, 0.14]} />
-				</T.Mesh>
-			</T.Group>
-		</T.Group>
-	{/if}
-
 	{#if builder.engraving}
 		<!-- Gravur auf der vorderen Case-Kante, rechts -->
 		<Text
@@ -411,7 +363,7 @@
 			<Keycap
 				def={noveltyEsc(key)}
 				geometry={keyGeometries.get(key.w)!}
-				material={key.code === 'Escape' ? keyNoveltyMat : key.accent ? keyAccentMat : keyBaseMat}
+				material={isNovelty(key) ? keyNoveltyMat : key.accent ? keyAccentMat : keyBaseMat}
 				legendColor={legendColor(key)}
 				height={KEY_H}
 				gap={GAP}

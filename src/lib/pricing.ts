@@ -15,7 +15,7 @@ import {
 	lightingOptions,
 	connectivityOptions,
 	languageOptions,
-	knobOptions,
+	noveltyOptions,
 	deskmatOptions,
 	ENGRAVING_PRICE_CENTS,
 	ENGRAVING_MAX_LENGTH,
@@ -28,7 +28,7 @@ import {
 	type LightingOption,
 	type ConnectivityOption,
 	type LanguageOption,
-	type KnobOption,
+	type NoveltyOption,
 	type DeskmatOption
 } from '$lib/data/catalog';
 
@@ -42,7 +42,7 @@ export interface BuildConfig {
 	lightingId: string;
 	connectivityId: string;
 	languageId: string;
-	knobId: string;
+	noveltyId: string;
 	deskmatId: string;
 	/** Freitext, max. ENGRAVING_MAX_LENGTH Zeichen, leer = keine Gravur */
 	engraving: string;
@@ -57,7 +57,7 @@ export interface ResolvedBuild {
 	lighting: LightingOption;
 	connectivity: ConnectivityOption;
 	language: LanguageOption;
-	knob: KnobOption;
+	novelty: NoveltyOption;
 	deskmat: DeskmatOption;
 	engraving: string;
 }
@@ -70,7 +70,7 @@ export interface PriceBreakdown {
 	plate: number;
 	lighting: number;
 	connectivity: number;
-	knob: number;
+	novelty: number;
 	deskmat: number;
 	engraving: number;
 	total: number;
@@ -93,7 +93,7 @@ export function resolveBuild(config: BuildConfig): ResolvedBuild {
 		lighting: findOrFallback(lightingOptions, config.lightingId),
 		connectivity: findOrFallback(connectivityOptions, config.connectivityId),
 		language: findOrFallback(languageOptions, config.languageId),
-		knob: findOrFallback(knobOptions, config.knobId),
+		novelty: findOrFallback(noveltyOptions, config.noveltyId),
 		deskmat: findOrFallback(deskmatOptions, config.deskmatId),
 		engraving: sanitizeEngraving(config.engraving)
 	};
@@ -121,7 +121,7 @@ export function isValidConfig(config: unknown): config is BuildConfig {
 		has(lightingOptions, c.lightingId) &&
 		has(connectivityOptions, c.connectivityId) &&
 		has(languageOptions, c.languageId) &&
-		has(knobOptions, c.knobId) &&
+		has(noveltyOptions, c.noveltyId) &&
 		has(deskmatOptions, c.deskmatId) &&
 		typeof c.engraving === 'string' &&
 		c.engraving.length <= ENGRAVING_MAX_LENGTH &&
@@ -138,7 +138,7 @@ export function computePrice(build: ResolvedBuild): PriceBreakdown {
 	const plate = build.plate.priceDeltaCents;
 	const lighting = build.lighting.priceDeltaCents;
 	const connectivity = build.connectivity.priceDeltaCents;
-	const knob = build.knob.priceDeltaCents;
+	const novelty = build.novelty.priceDeltaCents;
 	const deskmat = build.deskmat.priceDeltaCents;
 	const engraving = build.engraving ? ENGRAVING_PRICE_CENTS : 0;
 	return {
@@ -149,7 +149,7 @@ export function computePrice(build: ResolvedBuild): PriceBreakdown {
 		plate,
 		lighting,
 		connectivity,
-		knob,
+		novelty,
 		deskmat,
 		engraving,
 		total:
@@ -160,7 +160,7 @@ export function computePrice(build: ResolvedBuild): PriceBreakdown {
 			plate +
 			lighting +
 			connectivity +
-			knob +
+			novelty +
 			deskmat +
 			engraving
 	};
@@ -182,7 +182,7 @@ export function buildDescription(build: ResolvedBuild): string {
 		`Lighting ${build.lighting.name}`,
 		build.connectivity.name,
 		`Layout ${build.language.name}`,
-		build.knob.enabled ? 'Knob' : null,
+		build.novelty.glyph ? `Novelty-Esc ${build.novelty.name}` : null,
 		build.deskmat.style !== 'none' ? `Deskmat ${build.deskmat.name}` : null,
 		build.engraving ? `Gravur "${build.engraving}"` : null
 	]

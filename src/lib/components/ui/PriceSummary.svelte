@@ -23,7 +23,7 @@
 			{ label: `${builder.plate.name}-Plate`, cents: builder.price.plate, delta: true },
 			{ label: `Lighting ${builder.lighting.name}`, cents: builder.price.lighting, delta: true },
 			{ label: builder.connectivity.name, cents: builder.price.connectivity, delta: true },
-			{ label: 'Knob', cents: builder.price.knob, delta: true },
+			{ label: `Novelty-Esc ${builder.novelty.name}`, cents: builder.price.novelty, delta: true },
 			{ label: `Deskmat ${builder.deskmat.name}`, cents: builder.price.deskmat, delta: true },
 			{ label: `Gravur "${builder.engraving}"`, cents: builder.price.engraving, delta: true }
 		].filter((l) => !l.delta || l.cents > 0)

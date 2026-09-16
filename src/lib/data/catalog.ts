@@ -269,28 +269,44 @@ export const languageOptions: LanguageOption[] = [
 	{ id: 'en', name: 'English', hint: 'QWERTY · US-ANSI' }
 ];
 
-export interface KnobOption {
+export interface NoveltyOption {
 	id: string;
 	name: string;
-	enabled: boolean;
+	/** Glyphe aus der Symbol-Schrift; null = normale Esc-Taste */
+	glyph: string | null;
 	priceDeltaCents: number;
 	description: string;
 }
 
-export const knobOptions: KnobOption[] = [
+/** Novelty-Esc: eigene Kappe in der dritten Set-Farbe mit Glyphe */
+export const noveltyOptions: NoveltyOption[] = [
 	{
-		id: 'no-knob',
-		name: 'Ohne',
-		enabled: false,
+		id: 'esc-standard',
+		name: 'Standard',
+		glyph: null,
 		priceDeltaCents: 0,
-		description: 'Cleane Oberkante.'
+		description: 'Esc wie alle anderen.'
 	},
 	{
-		id: 'knob',
-		name: 'Knob',
-		enabled: true,
-		priceDeltaCents: 1900,
-		description: 'Gerändelter Drehregler oben rechts, Metall passend zur Platte.'
+		id: 'esc-forge',
+		name: 'Forge',
+		glyph: '⚒',
+		priceDeltaCents: 700,
+		description: 'Hammer und Amboss – das Haus-Zeichen.'
+	},
+	{
+		id: 'esc-bolt',
+		name: 'Bolt',
+		glyph: '⚡',
+		priceDeltaCents: 700,
+		description: 'Blitz. Für schnelle Finger.'
+	},
+	{
+		id: 'esc-diamond',
+		name: 'Diamond',
+		glyph: '◆',
+		priceDeltaCents: 700,
+		description: 'Reduziert, geometrisch.'
 	}
 ];
 
@@ -362,7 +378,7 @@ export const defaultSelection = {
 	lightingId: 'no-light',
 	connectivityId: 'wired',
 	languageId: 'de',
-	knobId: 'no-knob',
+	noveltyId: 'esc-standard',
 	deskmatId: 'no-mat',
 	engraving: ''
 } as const;

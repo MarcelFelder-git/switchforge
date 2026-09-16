@@ -44,4 +44,4 @@ Node 20 lokal; `engine-strict` ist aus (`.npmrc`), weil `camera-controls` (Brows
 2. ✅ Layouts als Daten, prozedurales 3D pro Layout, Tippen auf echter Tastatur → Modell + Sound, Shadcn, Lazy-Load der Szene
 3. ✅ Cart (persistent, Tab-Sync), `/api/checkout` (Stripe Checkout, Server-Pricing), Webhook, `/checkout/success`
 4. Deploy auf Vercel + Stripe-Test-Keys + Webhook-Endpoint, echte Sound-Samples, OG-Image, Case Study
-5. Zubehör in derselben Szene (Deskmat, Cable), evtl. Knob/Gravur
+5. ✅ Zubehör (Deskmat, Kabel), Gravur, Novelty-Esc – Knob bewusst verworfen (sah nicht gut aus)

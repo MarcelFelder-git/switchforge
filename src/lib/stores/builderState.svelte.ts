@@ -34,7 +34,7 @@ export class BuilderState {
 	lightingId = $state<string>(defaultSelection.lightingId);
 	connectivityId = $state<string>(defaultSelection.connectivityId);
 	languageId = $state<string>(defaultSelection.languageId);
-	knobId = $state<string>(defaultSelection.knobId);
+	noveltyId = $state<string>(defaultSelection.noveltyId);
 	deskmatId = $state<string>(defaultSelection.deskmatId);
 	engraving = $state<string>(defaultSelection.engraving);
 
@@ -65,8 +65,8 @@ export class BuilderState {
 	get language() {
 		return this.resolved.language;
 	}
-	get knob() {
-		return this.resolved.knob;
+	get novelty() {
+		return this.resolved.novelty;
 	}
 	get deskmat() {
 		return this.resolved.deskmat;
@@ -103,8 +103,8 @@ export class BuilderState {
 	setLanguage(id: string) {
 		this.languageId = id;
 	}
-	setKnob(id: string) {
-		this.knobId = id;
+	setNovelty(id: string) {
+		this.noveltyId = id;
 	}
 	setDeskmat(id: string) {
 		this.deskmatId = id;
@@ -128,7 +128,7 @@ export class BuilderState {
 			lightingId: this.lightingId,
 			connectivityId: this.connectivityId,
 			languageId: this.languageId,
-			knobId: this.knobId,
+			noveltyId: this.noveltyId,
 			deskmatId: this.deskmatId,
 			engraving: this.engraving
 		};
@@ -144,7 +144,7 @@ export class BuilderState {
 		this.lightingId = config.lightingId;
 		this.connectivityId = config.connectivityId;
 		this.languageId = config.languageId;
-		this.knobId = config.knobId;
+		this.noveltyId = config.noveltyId;
 		this.deskmatId = config.deskmatId;
 		this.engraving = config.engraving;
 	}

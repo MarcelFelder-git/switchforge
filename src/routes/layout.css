@@ -63,6 +63,17 @@
 	--color-ring: var(--color-neon);
 }
 
+/* Dieselbe Symbol-Schrift wie auf den 3D-Keycaps (DejaVu-Subset, 5 KB) */
+@font-face {
+	font-family: 'LegendSymbols';
+	src: url('/fonts/legend-symbols.woff') format('woff');
+	font-display: swap;
+}
+
+@utility font-symbols {
+	font-family: 'LegendSymbols', sans-serif;
+}
+
 @layer base {
 	:root {
 		color-scheme: dark;

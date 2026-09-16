@@ -17,7 +17,7 @@
 		lightingOptions,
 		connectivityOptions,
 		languageOptions,
-		knobOptions,
+		noveltyOptions,
 		deskmatOptions,
 		ENGRAVING_MAX_LENGTH,
 		ENGRAVING_PRICE_CENTS,
@@ -254,21 +254,43 @@
 	{@render section('07', 'Connectivity', builder.connectivity.name, connectivityBody)}
 
 	{#snippet extrasBody()}
-		<div class="grid grid-cols-2 gap-2">
-			{#each knobOptions as knob (knob.id)}
+		<p class="mb-1.5 font-mono text-[10px] tracking-[0.15em] text-ink-muted uppercase">
+			Novelty-Esc
+		</p>
+		<div class="grid grid-cols-4 gap-2">
+			{#each noveltyOptions as nov (nov.id)}
 				<button
-					class={cn(option, 'px-3 py-2.5', builder.knobId === knob.id ? active : idle)}
-					aria-pressed={builder.knobId === knob.id}
-					onclick={() => builder.setKnob(knob.id)}
+					class={cn(
+						option,
+						'flex flex-col items-center gap-1 px-2 py-2.5',
+						builder.noveltyId === nov.id ? active : idle
+					)}
+					aria-pressed={builder.noveltyId === nov.id}
+					title={nov.description}
+					onclick={() => builder.setNovelty(nov.id)}
 				>
-					<span class="block text-sm font-medium text-ink">{knob.name}</span>
-					<span class="block font-mono text-[10px] text-ink-muted"
-						>{delta(knob.priceDeltaCents)}</span
+					<!-- Mini-Keycap mit Glyphe – gleiche Symbolschrift wie im 3D-Modell -->
+					<span
+						class="flex h-8 w-8 items-center justify-center rounded-[4px] border border-line text-base"
+						style:background={nov.glyph
+							? builder.keycapSet.colors.legend
+							: builder.keycapSet.colors.accent}
+						style:color={nov.glyph
+							? builder.keycapSet.colors.base
+							: builder.keycapSet.colors.legend}
 					>
+						{#if nov.glyph}
+							<span class="font-symbols">{nov.glyph}</span>
+						{:else}
+							<span class="font-mono text-[8px]">Esc</span>
+						{/if}
+					</span>
+					<span class="text-xs font-medium text-ink">{nov.name}</span>
+					<span class="font-mono text-[10px] text-ink-muted">{delta(nov.priceDeltaCents)}</span>
 				</button>
 			{/each}
 		</div>
-		<p class="mt-2 font-mono text-[10px] text-ink-faint">{builder.knob.description}</p>
+		<p class="mt-2 font-mono text-[10px] text-ink-faint">{builder.novelty.description}</p>
 
 		<p class="mt-4 mb-1.5 font-mono text-[10px] tracking-[0.15em] text-ink-muted uppercase">
 			Deskmat
@@ -326,7 +348,7 @@
 		'08',
 		'Extras',
 		[
-			builder.knob.enabled ? 'Knob' : null,
+			builder.novelty.glyph ? `Esc ${builder.novelty.glyph}` : null,
 			builder.deskmat.style !== 'none' ? 'Deskmat' : null,
 			builder.engraving ? `"${builder.engraving}"` : null
 		]
