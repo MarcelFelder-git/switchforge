@@ -128,7 +128,17 @@
 					>
 						In 3D konfiguriert, vorher gehört, von Hand gebaut.
 					</p>
-					<div class="mt-7 flex flex-wrap items-center gap-3">
+					<!-- Preis: gross, weil er die erste Frage beantwortet -->
+					<p class="mt-5 flex items-baseline gap-2">
+						<span class="font-mono text-[11px] tracking-[0.2em] text-ink-muted uppercase">ab</span>
+						<span
+							class="text-brand font-display text-3xl font-extrabold sm:text-4xl lg:text-[clamp(28px,2.6vw,44px)]"
+						>
+							{formatPrice(fromPrice)}
+						</span>
+						<span class="font-mono text-[10px] text-ink-faint">inkl. MwSt.</span>
+					</p>
+					<div class="mt-6 flex flex-wrap items-center gap-3">
 						<button
 							class="inline-flex h-12 items-center gap-2 rounded-full bg-brand px-7 text-sm font-semibold text-void shadow-[0_0_32px_oklch(0.72_0.2_20/0.45)] transition-transform hover:scale-[1.03] focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:outline-none"
 							onclick={() => start()}
@@ -145,9 +155,9 @@
 					<ul
 						class="mt-7 flex flex-wrap gap-x-6 gap-y-2 font-mono text-[10px] tracking-[0.15em] text-ink-muted uppercase"
 					>
-						<li class="text-ink">Ab {formatPrice(fromPrice)}</li>
 						<li>Zehn Werktage bis zum Versand</li>
 						<li>30 Tage Rückgabe</li>
+						<li>Versand aus DE</li>
 					</ul>
 				</div>
 				<!-- Bildunterschrift: welches Board das ist -->

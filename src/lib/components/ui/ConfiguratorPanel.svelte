@@ -25,6 +25,17 @@
 	} from '$lib/data/catalog';
 	import { sanitizeEngraving } from '$lib/pricing';
 	import { cn } from '$lib/utils';
+	import LayoutSilhouette from './LayoutSilhouette.svelte';
+	import ForceCurve from './ForceCurve.svelte';
+	import Cable from '@lucide/svelte/icons/cable';
+	import Bluetooth from '@lucide/svelte/icons/bluetooth';
+
+	/** Metall-Optik der Platten als CSS-Verlauf – kein Bild nötig */
+	const PLATE_SWATCH: Record<string, string> = {
+		aluminium: 'linear-gradient(135deg,#c9ced6 0%,#8d939c 45%,#d6dae0 100%)',
+		brass: 'linear-gradient(135deg,#e2c15a 0%,#a67c1c 45%,#f0d77a 100%)',
+		polycarbonate: 'linear-gradient(135deg,#f3f6f9 0%,#c9d3dd 45%,#ffffff 100%)'
+	};
 
 	const option =
 		'group rounded-panel border text-left transition-colors outline-none focus-visible:ring-2 focus-visible:ring-ring/60';
@@ -63,6 +74,14 @@
 					aria-pressed={builder.baseKitId === kit.id}
 					onclick={() => builder.setBaseKit(kit.id)}
 				>
+					<!-- Silhouette aus den echten Layout-Daten -->
+					<LayoutSilhouette
+						size={kit.layout}
+						class={cn(
+							'mb-2 w-full',
+							builder.baseKitId === kit.id ? 'text-ember' : 'text-ink-muted'
+						)}
+					/>
 					<span class="flex items-baseline justify-between gap-2">
 						<span class="text-sm font-medium text-ink">{kit.name}</span>
 						<span class="font-mono text-[10px] text-ink-faint">{kit.layout}</span>
@@ -142,10 +161,13 @@
 					aria-pressed={builder.switchId === sw.id}
 					onclick={() => builder.setSwitch(sw.id)}
 				>
-					<span class={cn('h-2 w-2 shrink-0 rounded-full', type.color)}></span>
+					<span class="w-14 shrink-0 text-line">
+						<ForceCurve type={sw.type} class="h-8 w-full" stroke={2.5} />
+					</span>
 					<span class="flex-1">
 						<span class="block text-sm font-medium text-ink">{sw.name}</span>
-						<span class="block font-mono text-[10px] text-ink-muted">
+						<span class="flex items-center gap-1.5 font-mono text-[10px] text-ink-muted">
+							<span class={cn('h-1.5 w-1.5 rounded-full', type.color)}></span>
 							{type.label} · {sw.actuationForceG}g
 						</span>
 					</span>
@@ -195,6 +217,10 @@
 					aria-pressed={builder.plateId === plate.id}
 					onclick={() => builder.setPlate(plate.id)}
 				>
+					<span
+						class="mb-2 block h-6 w-full rounded-[4px] border border-ink/10"
+						style:background={PLATE_SWATCH[plate.material]}
+					></span>
 					<span class="block text-sm font-medium text-ink">{plate.name}</span>
 					<span class="block font-mono text-[10px] text-ink-muted">
 						{delta(plate.priceDeltaCents)}
@@ -214,18 +240,23 @@
 					aria-pressed={builder.lightingId === light.id}
 					onclick={() => builder.setLighting(light.id)}
 				>
-					<span class="flex items-center gap-2">
-						<span
-							class={cn(
-								'h-2 w-2 rounded-full',
-								light.mode === 'none' && 'border border-line',
-								light.mode === 'white' && 'bg-[#fff3d6] shadow-[0_0_8px_#fff3d6]',
-								light.mode === 'rgb' &&
-									'bg-[linear-gradient(90deg,#f43f5e,#a3e635,#22d3ee,#a855f7)] shadow-glow'
-							)}
-						></span>
-						<span class="text-sm font-medium text-ink">{light.name}</span>
+					<!-- Vorschau: ein Streifen "Platte" unter drei Kappen -->
+					<span class="mb-2 flex h-6 w-full items-end gap-1 rounded-[4px] bg-void/70 p-1">
+						{#each [0, 1, 2] as i (i)}
+							<span class="relative h-full flex-1 rounded-[2px] bg-surface-raised">
+								<span
+									class={cn(
+										'absolute inset-x-0 bottom-0 h-[3px] rounded-full',
+										light.mode === 'none' && 'bg-line',
+										light.mode === 'white' && 'bg-[#fff3d6] shadow-[0_0_6px_#fff3d6]',
+										light.mode === 'rgb' &&
+											'animate-hue bg-[linear-gradient(90deg,#f43f5e,#f59e0b,#a3e635,#22d3ee,#a855f7,#f43f5e)] shadow-[0_0_6px_#22d3ee]'
+									)}
+								></span>
+							</span>
+						{/each}
 					</span>
+					<span class="text-sm font-medium text-ink">{light.name}</span>
 					<span class="block font-mono text-[10px] text-ink-muted">
 						{delta(light.priceDeltaCents)}
 					</span>
@@ -244,7 +275,14 @@
 					aria-pressed={builder.connectivityId === conn.id}
 					onclick={() => builder.setConnectivity(conn.id)}
 				>
-					<span class="block text-sm font-medium text-ink">{conn.name}</span>
+					<span class="flex items-center gap-2 text-sm font-medium text-ink">
+						{#if conn.mode === 'wired'}
+							<Cable class="size-4 text-ember" />
+						{:else}
+							<Bluetooth class="size-4 text-violet" />
+						{/if}
+						{conn.name}
+					</span>
 					<span class="block font-mono text-[10px] text-ink-muted">
 						{conn.mode === 'wired' ? 'USB-C' : 'BT 5.3 · 2.4 GHz'} · {delta(conn.priceDeltaCents)}
 					</span>

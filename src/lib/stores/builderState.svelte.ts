@@ -12,7 +12,19 @@
  * Die eigentliche Preislogik liegt in $lib/pricing.ts (reine Funktionen),
  * damit der Server denselben Code für die Checkout-Validierung nutzt.
  */
-import { defaultSelection, CURRENCY } from '$lib/data/catalog';
+import {
+	defaultSelection,
+	CURRENCY,
+	baseKits,
+	caseColors,
+	switchOptions,
+	keycapSets,
+	plateOptions,
+	lightingOptions,
+	connectivityOptions,
+	noveltyOptions,
+	deskmatOptions
+} from '$lib/data/catalog';
 import {
 	resolveBuild,
 	computePrice,
@@ -115,6 +127,25 @@ export class BuilderState {
 
 	reset() {
 		this.load(defaultSelection);
+	}
+
+	/** Würfeln: zufälliger Build, Sprache und Gravur bleiben */
+	randomize() {
+		const pick = <T extends { id: string }>(list: T[]) =>
+			list[Math.floor(Math.random() * list.length)].id;
+		this.load({
+			baseKitId: pick(baseKits),
+			caseColorId: pick(caseColors),
+			switchId: pick(switchOptions),
+			keycapSetId: pick(keycapSets),
+			plateId: pick(plateOptions),
+			lightingId: pick(lightingOptions),
+			connectivityId: pick(connectivityOptions),
+			noveltyId: pick(noveltyOptions),
+			deskmatId: pick(deskmatOptions),
+			languageId: this.languageId,
+			engraving: this.engraving
+		});
 	}
 
 	/** Snapshot ohne Reaktivität – sicher zum Speichern/Versenden */
