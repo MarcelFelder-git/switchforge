@@ -86,66 +86,73 @@
 <div class="relative overflow-x-clip">
 	<SiteHeader />
 
-	<!-- HERO: das echte Foto zuerst – Vertrauen in einer Sekunde -->
-	<section class="relative -mt-px">
-		<div class="relative h-[min(88vh,900px)] min-h-[560px] overflow-hidden">
+	<!-- HERO: das echte Foto zuerst – Vertrauen in einer Sekunde.
+	     Höhe = 52vw, damit das Bild (Seitenverhältnis 1.86) immer breiten-gefittet ist:
+	     das Board steht dann auf jedem Monitor bei ~38 % der Breite, der Text bleibt links davon. -->
+	<section class="relative">
+		<div class="relative overflow-hidden lg:h-[min(88vh,52vw)] lg:min-h-[520px]">
 			<img
 				src="/img/lifestyle/hero.webp"
 				alt="Nightshift-Build rechts auf einer Filzmatte, links freier Holzschreibtisch, Sukkulente und Spiralkabel"
 				width="1306"
 				height="702"
 				fetchpriority="high"
-				class="absolute inset-0 h-full w-full object-cover object-[55%_60%]"
+				class="h-[62vw] min-h-[260px] w-full object-cover object-[70%_60%] lg:absolute lg:inset-0 lg:h-full lg:object-[50%_60%]"
 			/>
-			<!-- Verlauf: links lesbar (Holz ist hell), rechts das Board unangetastet -->
+			<!-- Verlauf nur auf Desktop, wo der Text über dem Holz liegt -->
 			<div
-				class="absolute inset-0 bg-[linear-gradient(90deg,oklch(0.1_0.01_260/0.88)_0%,oklch(0.1_0.01_260/0.6)_35%,transparent_58%)]"
+				class="absolute inset-0 hidden bg-[linear-gradient(90deg,oklch(0.1_0.01_260/0.86)_0%,oklch(0.1_0.01_260/0.55)_30%,transparent_48%)] lg:block"
 			></div>
 			<div
-				class="absolute inset-x-0 bottom-0 h-40 bg-[linear-gradient(180deg,transparent,var(--color-void))]"
+				class="absolute inset-x-0 bottom-0 hidden h-32 bg-[linear-gradient(180deg,transparent,var(--color-void))] lg:block"
 			></div>
 
-			<div class="relative mx-auto flex h-full max-w-7xl flex-col justify-center px-6">
-				<span
-					class="inline-flex w-fit items-center gap-2 rounded-full border border-ink/15 bg-void/50 px-3 py-1 font-mono text-[10px] tracking-[0.2em] text-ink-muted uppercase backdrop-blur"
-				>
-					<span class="size-1.5 rounded-full bg-brand"></span>
-					Custom Mechanical Keyboards · Gebaut nach Bestellung
-				</span>
-				<h1
-					class="mt-6 max-w-3xl font-display text-[46px] leading-[0.95] font-extrabold tracking-tight text-ink sm:text-6xl lg:text-7xl"
-				>
-					Geschmiedet<br />
-					<span class="text-brand">für deine</span> Hände.
-				</h1>
-				<p class="mt-6 max-w-md text-base leading-relaxed text-ink-muted sm:text-lg">
-					Layout, Case, Switches, Keycaps, Licht. In 3D konfiguriert, vorher gehört, von Hand
-					gebaut. Ab {formatPrice(fromPrice)}.
-				</p>
-				<div class="mt-8 flex flex-wrap items-center gap-3">
-					<button
-						class="inline-flex h-12 items-center gap-2 rounded-full bg-brand px-7 text-sm font-semibold text-void shadow-[0_0_32px_oklch(0.72_0.2_20/0.45)] transition-transform hover:scale-[1.03] focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:outline-none"
-						onclick={() => start()}
+			<div
+				class="relative mx-auto flex max-w-7xl flex-col justify-center px-6 py-10 lg:h-full lg:max-w-none lg:py-0 lg:pl-[6vw]"
+			>
+				<div class="lg:max-w-[30vw]">
+					<span
+						class="inline-flex w-fit items-center gap-2 rounded-full border border-ink/15 bg-void/50 px-3 py-1 font-mono text-[10px] tracking-[0.2em] text-ink-muted uppercase backdrop-blur"
 					>
-						Jetzt konfigurieren <ArrowRight class="size-4" />
-					</button>
-					<a
-						href="#deins"
-						class="inline-flex h-12 items-center gap-2 rounded-full border border-ink/20 bg-void/40 px-5 text-sm text-ink backdrop-blur transition-colors hover:border-ember"
+						<span class="size-1.5 rounded-full bg-brand"></span>
+						Custom Mechanical Keyboards
+					</span>
+					<h1
+						class="mt-5 font-display text-[44px] leading-[0.95] font-extrabold tracking-tight text-ink sm:text-6xl lg:text-[clamp(36px,3.8vw,76px)]"
 					>
-						Live in 3D ansehen ↓
-					</a>
+						Geschmiedet<br />
+						<span class="text-brand">für deine</span> Hände.
+					</h1>
+					<p
+						class="mt-5 text-base text-ink-muted sm:text-lg lg:text-[clamp(14px,1.2vw,20px)] lg:whitespace-nowrap"
+					>
+						In 3D konfiguriert, vorher gehört, von Hand gebaut.
+					</p>
+					<div class="mt-7 flex flex-wrap items-center gap-3">
+						<button
+							class="inline-flex h-12 items-center gap-2 rounded-full bg-brand px-7 text-sm font-semibold text-void shadow-[0_0_32px_oklch(0.72_0.2_20/0.45)] transition-transform hover:scale-[1.03] focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:outline-none"
+							onclick={() => start()}
+						>
+							Jetzt konfigurieren <ArrowRight class="size-4" />
+						</button>
+						<a
+							href="#deins"
+							class="inline-flex h-12 items-center gap-2 rounded-full border border-ink/20 bg-void/40 px-5 text-sm text-ink backdrop-blur transition-colors hover:border-ember"
+						>
+							Live in 3D ansehen ↓
+						</a>
+					</div>
+					<ul
+						class="mt-7 flex flex-wrap gap-x-6 gap-y-2 font-mono text-[10px] tracking-[0.15em] text-ink-muted uppercase"
+					>
+						<li class="text-ink">Ab {formatPrice(fromPrice)}</li>
+						<li>Zehn Werktage bis zum Versand</li>
+						<li>30 Tage Rückgabe</li>
+					</ul>
 				</div>
-				<ul
-					class="mt-8 flex flex-wrap gap-x-6 gap-y-2 font-mono text-[10px] tracking-[0.15em] text-ink-muted uppercase"
-				>
-					<li>Zehn Werktage bis zum Versand</li>
-					<li>30 Tage Rückgabe</li>
-					<li>Versand aus DE</li>
-				</ul>
 				<!-- Bildunterschrift: welches Board das ist -->
 				<button
-					class="absolute right-6 bottom-8 hidden items-center gap-2 rounded-full border border-ink/15 bg-void/50 py-1.5 pr-4 pl-1.5 font-mono text-[10px] tracking-[0.15em] text-ink-muted uppercase backdrop-blur transition-colors hover:border-ember hover:text-ink sm:inline-flex"
+					class="absolute right-6 bottom-8 hidden items-center gap-2 rounded-full border border-ink/15 bg-void/50 py-1.5 pr-4 pl-1.5 font-mono text-[10px] tracking-[0.15em] text-ink-muted uppercase backdrop-blur transition-colors hover:border-ember hover:text-ink lg:inline-flex"
 					onclick={() => start(presetById.nightshift.config)}
 				>
 					<span class="size-5 rounded-full bg-brand"></span>
