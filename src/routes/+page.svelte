@@ -84,17 +84,76 @@
 </svelte:head>
 
 <div class="relative overflow-x-clip">
-	<!-- Atmosphäre: zwei weiche Lichtflecken hinter allem -->
-	<div
-		class="pointer-events-none absolute -top-40 -left-40 h-[640px] w-[640px] blur-3xl glow-violet"
-	></div>
-	<div
-		class="pointer-events-none absolute top-[30vh] -right-52 h-[720px] w-[720px] blur-3xl glow-ember"
-	></div>
-
 	<SiteHeader />
 
-	<HeroStory />
+	<!-- HERO: das echte Foto zuerst – Vertrauen in einer Sekunde -->
+	<section class="relative -mt-px">
+		<div class="relative h-[min(88vh,900px)] min-h-[560px] overflow-hidden">
+			<img
+				src="/img/lifestyle/nightshift.webp"
+				alt="Nightshift-Build auf einem Holzschreibtisch mit Filzmatte, Monitor und Kaffeetasse"
+				width="1306"
+				height="816"
+				fetchpriority="high"
+				class="absolute inset-0 h-full w-full object-cover object-[60%_45%]"
+			/>
+			<!-- Verlauf: links lesbar, unten in die Seite -->
+			<div
+				class="absolute inset-0 bg-[linear-gradient(90deg,oklch(0.1_0.01_260/0.9)_0%,oklch(0.1_0.01_260/0.55)_45%,transparent_75%)]"
+			></div>
+			<div
+				class="absolute inset-x-0 bottom-0 h-40 bg-[linear-gradient(180deg,transparent,var(--color-void))]"
+			></div>
+
+			<div class="relative mx-auto flex h-full max-w-7xl flex-col justify-center px-6">
+				<span
+					class="inline-flex w-fit items-center gap-2 rounded-full border border-ink/15 bg-void/50 px-3 py-1 font-mono text-[10px] tracking-[0.2em] text-ink-muted uppercase backdrop-blur"
+				>
+					<span class="size-1.5 rounded-full bg-brand"></span>
+					Custom Mechanical Keyboards · Gebaut nach Bestellung
+				</span>
+				<h1
+					class="mt-6 max-w-3xl font-display text-[46px] leading-[0.95] font-extrabold tracking-tight text-ink sm:text-6xl lg:text-7xl"
+				>
+					Geschmiedet<br />
+					<span class="text-brand">für deine</span> Hände.
+				</h1>
+				<p class="mt-6 max-w-md text-base leading-relaxed text-ink-muted sm:text-lg">
+					Layout, Case, Switches, Keycaps, Licht. In 3D konfiguriert, vorher gehört, von Hand
+					gebaut. Ab {formatPrice(fromPrice)}.
+				</p>
+				<div class="mt-8 flex flex-wrap items-center gap-3">
+					<button
+						class="inline-flex h-12 items-center gap-2 rounded-full bg-brand px-7 text-sm font-semibold text-void shadow-[0_0_32px_oklch(0.72_0.2_20/0.45)] transition-transform hover:scale-[1.03] focus-visible:ring-2 focus-visible:ring-ring/60 focus-visible:outline-none"
+						onclick={() => start()}
+					>
+						Jetzt konfigurieren <ArrowRight class="size-4" />
+					</button>
+					<a
+						href="#deins"
+						class="inline-flex h-12 items-center gap-2 rounded-full border border-ink/20 bg-void/40 px-5 text-sm text-ink backdrop-blur transition-colors hover:border-ember"
+					>
+						Live in 3D ansehen ↓
+					</a>
+				</div>
+				<ul
+					class="mt-8 flex flex-wrap gap-x-6 gap-y-2 font-mono text-[10px] tracking-[0.15em] text-ink-muted uppercase"
+				>
+					<li>Zehn Werktage bis zum Versand</li>
+					<li>30 Tage Rückgabe</li>
+					<li>Versand aus DE</li>
+				</ul>
+				<!-- Bildunterschrift: welches Board das ist -->
+				<button
+					class="absolute right-6 bottom-8 hidden items-center gap-2 rounded-full border border-ink/15 bg-void/50 py-1.5 pr-4 pl-1.5 font-mono text-[10px] tracking-[0.15em] text-ink-muted uppercase backdrop-blur transition-colors hover:border-ember hover:text-ink sm:inline-flex"
+					onclick={() => start(presetById.nightshift.config)}
+				>
+					<span class="size-5 rounded-full bg-brand"></span>
+					Im Bild: Nightshift · Build öffnen
+				</button>
+			</div>
+		</div>
+	</section>
 
 	<!-- TICKER -->
 	<div class="overflow-hidden border-y border-line bg-surface/50 py-3">
@@ -109,6 +168,80 @@
 			{/each}
 		</div>
 	</div>
+
+	<!-- LIVE: Personalisierung + Scroll-Story mit dem echten 3D-Board -->
+	<div id="deins">
+		<HeroStory />
+	</div>
+
+	<!-- AUS DER WERKSTATT: drei Builds in echter Umgebung -->
+	<section class="mx-auto max-w-7xl px-6 py-20">
+		<div class="mb-8 flex flex-wrap items-end justify-between gap-6">
+			<div>
+				<p class="font-mono text-[11px] tracking-[0.2em] text-ink-faint uppercase">
+					Aus der Werkstatt
+				</p>
+				<h2 class="mt-2 font-display text-3xl font-bold text-ink sm:text-4xl">
+					Gebaut, fotografiert, verschickt.
+				</h2>
+			</div>
+			<p class="max-w-sm text-sm text-ink-muted">
+				Drei Konfigurationen, die genau so den Tisch verlassen haben. Klick öffnet den Build.
+			</p>
+		</div>
+		<div class="grid gap-4 md:grid-cols-3 md:grid-rows-2">
+			<!-- Arctic gross, zwei Reihen hoch -->
+			<button
+				class="group relative overflow-hidden rounded-2xl border border-line text-left md:col-span-2 md:row-span-2"
+				onclick={() => start(presetById.bone.config)}
+			>
+				<img
+					src="/img/lifestyle/arctic.webp"
+					alt="Arctic-Build mit weißen Keycaps und türkisem Spiralkabel"
+					loading="lazy"
+					class="h-72 w-full object-cover transition-transform duration-700 group-hover:scale-[1.03] md:h-full"
+				/>
+				<div
+					class="absolute inset-x-0 bottom-0 bg-[linear-gradient(180deg,transparent,oklch(0.1_0.01_260/0.9))] p-5"
+				>
+					<h3 class="font-display text-xl font-bold text-ink">Arctic · White Backlight</h3>
+					<p class="mt-1 text-sm text-ink-muted">Forge 60, Bone-Case, warmweiß von unten.</p>
+				</div>
+			</button>
+			<button
+				class="group relative overflow-hidden rounded-2xl border border-line text-left"
+				onclick={() => start(presetById.terminal.config)}
+			>
+				<img
+					src="/img/lifestyle/terminal.webp"
+					alt="Terminal-Build mit RGB-Legenden"
+					loading="lazy"
+					class="h-56 w-full object-cover object-left transition-transform duration-700 group-hover:scale-[1.04]"
+				/>
+				<div
+					class="absolute inset-x-0 bottom-0 bg-[linear-gradient(180deg,transparent,oklch(0.1_0.01_260/0.9))] p-4"
+				>
+					<h3 class="font-display text-lg font-bold text-ink">Terminal · RGB Wave</h3>
+				</div>
+			</button>
+			<button
+				class="group relative overflow-hidden rounded-2xl border border-line text-left"
+				onclick={() => start(presetById.bone.config)}
+			>
+				<img
+					src="/img/lifestyle/bone.webp"
+					alt="Peach-Build mit orangem Spiralkabel"
+					loading="lazy"
+					class="h-56 w-full object-cover object-left transition-transform duration-700 group-hover:scale-[1.04]"
+				/>
+				<div
+					class="absolute inset-x-0 bottom-0 bg-[linear-gradient(180deg,transparent,oklch(0.1_0.01_260/0.9))] p-4"
+				>
+					<h3 class="font-display text-lg font-bold text-ink">Peach · Clicky</h3>
+				</div>
+			</button>
+		</div>
+	</section>
 
 	<!-- BUILDS -->
 	<section id="builds" class="mx-auto max-w-7xl px-6 py-20">
@@ -160,52 +293,6 @@
 					</div>
 				</button>
 			{/each}
-		</div>
-	</section>
-
-	<!-- AUF DEINEM TISCH: Lifestyle-Foto, vollbreit -->
-	<section class="relative mx-auto max-w-[1600px] px-0 pb-20 sm:px-6">
-		<div class="group relative overflow-hidden sm:rounded-3xl">
-			<img
-				src="/img/lifestyle/nightshift.webp"
-				alt="Nightshift-Build auf einem Holzschreibtisch mit Filzmatte, Monitor und Kaffeetasse"
-				width="1306"
-				height="816"
-				loading="lazy"
-				class="h-[62vh] min-h-[420px] w-full object-cover object-center transition-transform duration-[1600ms] ease-out group-hover:scale-[1.03]"
-			/>
-			<div
-				class="absolute inset-0 bg-[linear-gradient(180deg,transparent_45%,oklch(0.1_0.01_260/0.85)_100%)]"
-			></div>
-			<div
-				class="absolute inset-x-0 bottom-0 flex flex-wrap items-end justify-between gap-6 p-6 sm:p-10"
-			>
-				<div class="max-w-lg">
-					<p class="font-mono text-[11px] tracking-[0.25em] text-ink-muted uppercase">
-						Auf deinem Tisch
-					</p>
-					<h2 class="mt-2 font-display text-3xl font-bold text-ink sm:text-5xl">
-						Sieht am Morgen genauso gut aus wie nachts.
-					</h2>
-				</div>
-				<button
-					class="inline-flex items-center gap-3 rounded-full border border-ink/20 bg-void/60 py-2 pr-5 pl-2 text-sm text-ink backdrop-blur transition-colors hover:border-ember"
-					onclick={() => start(presetById.nightshift.config)}
-				>
-					<span
-						class="flex size-8 items-center justify-center rounded-full bg-brand font-display text-xs font-extrabold text-void"
-					>
-						N
-					</span>
-					<span>
-						<span class="block font-medium">Nightshift</span>
-						<span class="block font-mono text-[10px] text-ink-muted">
-							{formatPrice(presetCards.find((c) => c.id === 'nightshift')?.price ?? 0)} · Build öffnen
-						</span>
-					</span>
-					<ArrowRight class="size-4 text-ember" />
-				</button>
-			</div>
 		</div>
 	</section>
 
@@ -351,75 +438,6 @@
 					</div>
 				{/each}
 			</div>
-		</div>
-	</section>
-
-	<!-- AUS DER WERKSTATT: drei Builds in echter Umgebung -->
-	<section class="mx-auto max-w-7xl px-6 py-20">
-		<div class="mb-8 flex flex-wrap items-end justify-between gap-6">
-			<div>
-				<p class="font-mono text-[11px] tracking-[0.2em] text-ink-faint uppercase">
-					Aus der Werkstatt
-				</p>
-				<h2 class="mt-2 font-display text-3xl font-bold text-ink sm:text-4xl">
-					Gebaut, fotografiert, verschickt.
-				</h2>
-			</div>
-			<p class="max-w-sm text-sm text-ink-muted">
-				Drei Konfigurationen, die genau so den Tisch verlassen haben. Klick öffnet den Build.
-			</p>
-		</div>
-		<div class="grid gap-4 md:grid-cols-3 md:grid-rows-2">
-			<!-- Arctic gross, zwei Reihen hoch -->
-			<button
-				class="group relative overflow-hidden rounded-2xl border border-line text-left md:col-span-2 md:row-span-2"
-				onclick={() => start(presetById.bone.config)}
-			>
-				<img
-					src="/img/lifestyle/arctic.webp"
-					alt="Arctic-Build mit weißen Keycaps und türkisem Spiralkabel"
-					loading="lazy"
-					class="h-72 w-full object-cover transition-transform duration-700 group-hover:scale-[1.03] md:h-full"
-				/>
-				<div
-					class="absolute inset-x-0 bottom-0 bg-[linear-gradient(180deg,transparent,oklch(0.1_0.01_260/0.9))] p-5"
-				>
-					<h3 class="font-display text-xl font-bold text-ink">Arctic · White Backlight</h3>
-					<p class="mt-1 text-sm text-ink-muted">Forge 60, Bone-Case, warmweiß von unten.</p>
-				</div>
-			</button>
-			<button
-				class="group relative overflow-hidden rounded-2xl border border-line text-left"
-				onclick={() => start(presetById.terminal.config)}
-			>
-				<img
-					src="/img/lifestyle/terminal.webp"
-					alt="Terminal-Build mit RGB-Legenden"
-					loading="lazy"
-					class="h-56 w-full object-cover object-left transition-transform duration-700 group-hover:scale-[1.04]"
-				/>
-				<div
-					class="absolute inset-x-0 bottom-0 bg-[linear-gradient(180deg,transparent,oklch(0.1_0.01_260/0.9))] p-4"
-				>
-					<h3 class="font-display text-lg font-bold text-ink">Terminal · RGB Wave</h3>
-				</div>
-			</button>
-			<button
-				class="group relative overflow-hidden rounded-2xl border border-line text-left"
-				onclick={() => start(presetById.bone.config)}
-			>
-				<img
-					src="/img/lifestyle/bone.webp"
-					alt="Peach-Build mit orangem Spiralkabel"
-					loading="lazy"
-					class="h-56 w-full object-cover object-left transition-transform duration-700 group-hover:scale-[1.04]"
-				/>
-				<div
-					class="absolute inset-x-0 bottom-0 bg-[linear-gradient(180deg,transparent,oklch(0.1_0.01_260/0.9))] p-4"
-				>
-					<h3 class="font-display text-lg font-bold text-ink">Peach · Clicky</h3>
-				</div>
-			</button>
 		</div>
 	</section>
 

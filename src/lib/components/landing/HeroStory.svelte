@@ -191,22 +191,17 @@
 				data-step="0"
 				class="flex min-h-[70vh] flex-col justify-center py-10 lg:min-h-screen lg:py-16"
 			>
-				<span
-					class="inline-flex w-fit items-center gap-2 rounded-full border border-line bg-surface/70 px-3 py-1 font-mono text-[10px] tracking-[0.2em] text-ink-muted uppercase"
+				<p class="text-brand font-mono text-[11px] tracking-[0.25em] uppercase">
+					<span class="text-ember">Live</span> · Das Board rechts ist echt gerendert
+				</p>
+				<h2
+					class="mt-4 font-display text-4xl leading-[0.95] font-extrabold tracking-tight text-ink sm:text-5xl lg:text-6xl"
 				>
-					<span class="size-1.5 rounded-full bg-brand"></span>
-					Custom Mechanical Keyboards
-				</span>
-				<h1
-					class="mt-6 font-display text-[44px] leading-[0.95] font-extrabold tracking-tight text-ink sm:text-6xl lg:text-7xl"
-				>
-					Geschmiedet<br />
-					<span class="text-brand">für deine</span><br />
-					Hände.
-				</h1>
-				<p class="mt-6 max-w-md text-base leading-relaxed text-ink-muted sm:text-lg">
-					Layout, Case, Switches, Keycaps, Licht – in 3D konfiguriert, vorher gehört, nach
-					Bestellung gebaut. Fang gleich hier an.
+					Mach es <span class="text-brand">deins.</span>
+				</h2>
+				<p class="mt-5 max-w-md text-base leading-relaxed text-ink-muted">
+					Farbe, Keycaps, dein Name – und du siehst es sofort. Dreh es mit der Maus, tipp auf deiner
+					Tastatur, scroll für die Details.
 				</p>
 
 				<!-- Personalisierung: wirkt sofort am Board rechts -->
