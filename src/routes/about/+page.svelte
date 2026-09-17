@@ -165,27 +165,42 @@ brass:  f ×1.18, Q ×1.4, lowpass ×1.35   // steif → "ping"`
 		</p>
 	</section>
 
-	<!-- Was fehlt -->
+	<!-- Teil zwei -->
 	<section class="mt-16">
 		<h2 class="font-mono text-[11px] tracking-[0.2em] text-ink-faint uppercase">
-			Was ein echter Shop noch bräuchte
+			Teil zwei: echte Bestellungen
 		</h2>
+		<p class="mt-4 text-sm leading-relaxed text-ink-muted">
+			Stripe als Order-System reicht für ein Demo – nicht für einen Shop, in dem jemand nachschauen
+			will, wo sein Board ist. Deshalb gibt es optional ein schlankes Backend, das die Demo nicht
+			braucht, aber nutzt, sobald es konfiguriert ist:
+		</p>
 		<ol
 			class="mt-4 list-decimal space-y-2 pl-5 text-sm leading-relaxed text-ink-muted marker:font-mono marker:text-ink-faint"
 		>
 			<li>
-				Eigene Order-Persistenz per Webhook – <span class="text-ink">idempotent</span>, weil Stripe
-				Events doppelt schickt.
+				<span class="text-ink">Neon Postgres + Drizzle</span> – zwei Tabellen: Bestellungen und verarbeitete
+				Stripe-Events. Neon statt Supabase, weil der Free-Tier nicht dauerhaft einschläft.
 			</li>
-			<li>Transaktions-Mails (Bestätigung, Versand).</li>
 			<li>
-				Status-Seite per Link statt Accounts – Gast-Checkout ist, was Custom-Keyboard-Shops
+				<span class="text-ink">Idempotenter Webhook</span> – die Event-ID wird vor der Verarbeitung eingetragen.
+				Schickt Stripe dasselbe Event dreimal, entsteht trotzdem eine Bestellung. Scheitert das Anlegen,
+				wird die Markierung zurückgenommen, damit Stripes Retry greift.
+			</li>
+			<li>
+				<span class="text-ink">Status-Seite per Token</span> statt Accounts – Link in der Bestätigungsmail,
+				Timeline bezahlt → gebaut → versendet → zugestellt. Gast-Checkout ist, was Custom-Keyboard-Shops
 				tatsächlich machen.
 			</li>
-			<li>Mini-Admin: Status ändern, Tracking eintragen.</li>
-			<li>Erst bei echtem Betrieb: Lager, Retouren, AGB, Widerruf, MwSt.</li>
+			<li>
+				<span class="text-ink">Mini-Admin</span> – ein Passwort, ein HMAC-Cookie, Status ändern, Tracking
+				eintragen. Jeder Statuswechsel schickt eine Mail (Resend, Free-Tier).
+			</li>
 		</ol>
-		<p class="mt-4 text-sm text-ink-muted">Das ist Teil zwei.</p>
+		<p class="mt-4 text-sm leading-relaxed text-ink-muted">
+			Was bewusst fehlt: Lagerbestand, Retouren, AGB, Widerruf, MwSt-Logik. Das ist der Teil, der
+			erst bei echtem Betrieb Sinn ergibt.
+		</p>
 	</section>
 
 	<div class="mt-16 flex flex-wrap gap-3 border-t border-line pt-10">

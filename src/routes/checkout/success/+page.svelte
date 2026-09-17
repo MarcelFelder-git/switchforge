@@ -34,7 +34,7 @@
 				<h1 class="text-xl font-medium">
 					{data.paid ? 'Bestellung bestätigt' : 'Zahlung ausstehend'}
 				</h1>
-				<p class="font-mono text-[11px] text-ink-faint">{data.orderId}</p>
+				<p class="font-mono text-[11px] text-ink-faint">{data.order?.id ?? data.orderId}</p>
 			</div>
 		</div>
 
@@ -69,6 +69,11 @@
 			verschickt.
 		</p>
 
-		<Button href="/build" variant="outline" class="self-start">Noch eins bauen</Button>
+		<div class="flex flex-wrap gap-3">
+			{#if data.order}
+				<Button href={data.order.statusUrl} class="rounded-full">Bestellstatus ansehen</Button>
+			{/if}
+			<Button href="/build" variant="outline" class="rounded-full">Noch eins bauen</Button>
+		</div>
 	</main>
 </div>

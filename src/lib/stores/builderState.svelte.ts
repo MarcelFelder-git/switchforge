@@ -14,7 +14,6 @@
  */
 import {
 	defaultSelection,
-	CURRENCY,
 	baseKits,
 	caseColors,
 	switchOptions,
@@ -184,14 +183,5 @@ export class BuilderState {
 /** App-weite Singleton-Instanz */
 export const builder = new BuilderState();
 
-// --- Helfer ---
-
-const priceFormatter = new Intl.NumberFormat('de-CH', {
-	style: 'currency',
-	currency: CURRENCY
-});
-
-/** Cent → formatierter Preisstring, z. B. 17900 → "EUR 179.00" */
-export function formatPrice(cents: number): string {
-	return priceFormatter.format(cents / 100);
-}
+// formatPrice lebt in pricing.ts (auch serverseitig nutzbar), hier nur re-exportiert
+export { formatPrice } from '$lib/pricing';

@@ -7,6 +7,7 @@
  *   Stripe geht. Der Client schickt nie Beträge, nur IDs.
  */
 import {
+	CURRENCY,
 	baseKits,
 	caseColors,
 	switchOptions,
@@ -188,4 +189,11 @@ export function buildDescription(build: ResolvedBuild): string {
 	]
 		.filter(Boolean)
 		.join(' · ');
+}
+
+const priceFormatter = new Intl.NumberFormat('de-CH', { style: 'currency', currency: CURRENCY });
+
+/** Cent → formatierter Preisstring, z. B. 17900 → "EUR 179.00" */
+export function formatPrice(cents: number): string {
+	return priceFormatter.format(cents / 100);
 }

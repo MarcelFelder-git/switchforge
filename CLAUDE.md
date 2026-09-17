@@ -30,6 +30,13 @@ Deploy: Vercel Hobby (adapter-vercel), Stripe Test-Modus, keine Datenbank. Null 
 - Runes-Modus ist projektweit erzwungen (`vite.config.ts`).
 - Design-Tokens leben in `src/routes/layout.css` unter `@theme` (OKLCH). Neue Farben dort anlegen, nicht inline.
 
+## Teil zwei: Orders-Backend (optional)
+
+- `src/lib/server/db/` (Drizzle + Neon HTTP), `orders.ts` (Webhook-Logik, Idempotenz über `stripe_events`), `email.ts` (Resend, optional), `admin.ts` (Passwort → HMAC-Cookie).
+- Routen: `/orders/[id]?t=token` (Kunde), `/admin` (Form Actions), Webhook legt Bestellungen an, Success-Seite verlinkt sie.
+- Ohne `DATABASE_URL` läuft alles wie vorher (Webhook loggt nur). Schema ändern → `npm run db:generate` → `npm run db:push` (braucht `DATABASE_URL` in `.env`).
+- Env: `DATABASE_URL`, `ADMIN_PASSWORD`, `RESEND_API_KEY`, `MAIL_FROM` – siehe `.env.example`.
+
 ## Stripe lokal
 
 `.env` mit `STRIPE_SECRET_KEY=sk_test_…` anlegen. Webhook lokal: `stripe listen --forward-to localhost:5174/api/webhooks/stripe` liefert das `STRIPE_WEBHOOK_SECRET`. Testkarte `4242 4242 4242 4242`.
@@ -54,6 +61,6 @@ Landing/About nutzen die Display-Schrift Syne + Marken-Verlauf (`text-brand`, `b
 2. ✅ Layouts als Daten, prozedurales 3D pro Layout, Tippen auf echter Tastatur → Modell + Sound, Shadcn, Lazy-Load der Szene
 3. ✅ Cart (persistent, Tab-Sync), `/api/checkout` (Stripe Checkout, Server-Pricing), Webhook, `/checkout/success`
 4. ✅ Hülle: Landing, Case Study (`/about`), gemeinsamer Header
-5. Deploy auf Vercel + Stripe-Test-Keys + Webhook-Endpoint, echte Sound-Samples, OG-Image
-6. Teil zwei: Neon + Drizzle, idempotenter Webhook → Order, Resend-Mail, Status-Seite per Token, Mini-Admin
+5. ✅ Deploy auf Vercel (switchforge.vercel.app), Stripe-Test-Keys, Webhook, OG-Image – offen: echte Sound-Samples
+6. ✅ Teil zwei: Neon + Drizzle, idempotenter Webhook → Order, Resend-Mail, Status-Seite per Token, Mini-Admin
 7. ✅ Zubehör (Deskmat, Kabel), Gravur, Novelty-Esc – Knob bewusst verworfen (sah nicht gut aus)

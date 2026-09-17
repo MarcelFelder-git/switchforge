@@ -6,6 +6,7 @@
 import { error } from '@sveltejs/kit';
 import { env } from '$env/dynamic/private';
 import { getStripe } from '$lib/server/stripe';
+import { getOrderBySession } from '$lib/server/orders';
 import type { PageServerLoad } from './$types';
 
 export const load: PageServerLoad = async ({ url }) => {
@@ -18,8 +19,14 @@ export const load: PageServerLoad = async ({ url }) => {
 		.catch(() => null);
 	if (!session) error(404, 'Bestellung nicht gefunden');
 
+	// Hat der Webhook die Bestellung schon angelegt? Dann gibt es eine Bestellnummer
+	// und den Link zur Status-Seite. Sonst zeigen wir die Stripe-Daten – der
+	// Webhook kommt meist innerhalb von Sekunden nach.
+	const order = await getOrderBySession(session.id).catch(() => null);
+
 	return {
 		orderId: session.id,
+		order: order ? { id: order.id, statusUrl: `/orders/${order.id}?t=${order.accessToken}` } : null,
 		paid: session.payment_status === 'paid',
 		email: session.customer_details?.email ?? null,
 		name: session.customer_details?.name ?? null,

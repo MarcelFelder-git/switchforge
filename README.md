@@ -33,9 +33,16 @@ Produktrenders: `/dev/shots` (nur im Dev-Server) rendert Konfigurationen mit fes
 
 Stehen auf `/about` – Server-Pricing aus IDs, Layouts als Daten, prozedurales 3D ohne Asset, Sound aus Resonatoren, und warum Supabase rausgeflogen ist.
 
-## Was ein echter Shop noch bräuchte
+## Teil zwei: echte Bestellungen (optional)
 
-Order-Persistenz per idempotentem Webhook, Transaktions-Mails, Status-Seite per Token, Mini-Admin. Das ist Teil zwei.
+Neon Postgres + Drizzle, idempotenter Webhook (Event-IDs in `stripe_events`), Bestätigungs- und Status-Mails über Resend, Status-Seite per Token (`/orders/SF-…?t=…`), Mini-Admin unter `/admin`. Ohne `DATABASE_URL` läuft die Demo wie vorher – die DB ist ein Upgrade, kein Blocker.
+
+```bash
+# .env: DATABASE_URL, ADMIN_PASSWORD, optional RESEND_API_KEY
+npm run db:push
+```
+
+Live: [switchforge.vercel.app](https://switchforge.vercel.app)
 
 ---
 
