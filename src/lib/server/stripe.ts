@@ -11,7 +11,9 @@ let client: Stripe | null = null;
 export function getStripe(): Stripe {
 	if (client) return client;
 
-	const secret = env.STRIPE_SECRET_KEY;
+	// trim(): per CLI/Copy-Paste eingetragene Keys haben gern ein Newline am Ende –
+	// das ergibt "Invalid character in header content" und damit einen 500
+	const secret = env.STRIPE_SECRET_KEY?.trim();
 	if (!secret) {
 		throw new Error('STRIPE_SECRET_KEY muss in .env gesetzt sein');
 	}

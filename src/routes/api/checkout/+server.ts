@@ -60,22 +60,32 @@ export const POST: RequestHandler = async ({ request, url }) => {
 					description: buildDescription(build),
 					// Konfiguration landet in Stripe – die "Bestellung" ist damit vollständig
 					// im Dashboard nachvollziehbar, ohne eigene Datenbank.
-					metadata: { ...config }
+					// Leere Werte weglassen: Stripe interpretiert "" als "Key löschen"
+					metadata: Object.fromEntries(
+						Object.entries(config).filter(([, v]) => typeof v === 'string' && v !== '')
+					)
 				}
 			}
 		};
 	});
 
-	const session = await getStripe().checkout.sessions.create({
-		mode: 'payment',
-		line_items: lineItems,
-		locale: 'de',
-		shipping_address_collection: { allowed_countries: ['DE', 'AT', 'CH'] },
-		success_url: `${url.origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
-		cancel_url: `${url.origin}/?checkout=cancelled`,
-		metadata: { source: 'switchforge' }
-	});
-
-	if (!session.url) error(502, 'Stripe hat keine Checkout-URL geliefert');
-	return json({ url: session.url });
+	try {
+		const session = await getStripe().checkout.sessions.create({
+			mode: 'payment',
+			line_items: lineItems,
+			locale: 'de',
+			shipping_address_collection: { allowed_countries: ['DE', 'AT', 'CH'] },
+			success_url: `${url.origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+			cancel_url: `${url.origin}/?checkout=cancelled`,
+			metadata: { source: 'switchforge' }
+		});
+		if (!session.url) error(502, 'Stripe hat keine Checkout-URL geliefert');
+		return json({ url: session.url });
+	} catch (err) {
+		// Stripe-Fehler sichtbar machen statt anonymer 500 – die Meldung landet im Drawer
+		if (err && typeof err === 'object' && 'status' in err && 'body' in err) throw err; // SvelteKit-HttpError
+		const message = err instanceof Error ? err.message : String(err);
+		console.error('[checkout] Stripe-Fehler:', message);
+		error(502, `Stripe: ${message}`);
+	}
 };

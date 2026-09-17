@@ -43,9 +43,9 @@
 		</dl>
 	{/if}
 
-	<div class="flex items-center gap-3 px-5 py-4">
+	<div class="flex flex-wrap items-center gap-3 px-5 py-4">
 		<button
-			class="group flex min-w-0 flex-1 flex-col items-start text-left"
+			class="group flex min-w-[10rem] flex-1 flex-col items-start text-left"
 			onclick={() => (open = !open)}
 			aria-expanded={open}
 		>

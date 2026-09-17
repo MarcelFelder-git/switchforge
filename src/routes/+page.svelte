@@ -129,7 +129,7 @@
 						In 3D konfiguriert, vorher gehört, von Hand gebaut.
 					</p>
 					<!-- Preis: gross, weil er die erste Frage beantwortet -->
-					<p class="mt-5 flex items-baseline gap-2">
+					<p class="mt-5 flex flex-wrap items-baseline gap-x-2 gap-y-1">
 						<span class="font-mono text-[11px] tracking-[0.2em] text-ink-muted uppercase">ab</span>
 						<span
 							class="text-brand font-display text-3xl font-extrabold sm:text-4xl lg:text-[clamp(28px,2.6vw,44px)]"
@@ -206,7 +206,7 @@
 				Drei Konfigurationen, die genau so den Tisch verlassen haben. Klick öffnet den Build.
 			</p>
 		</div>
-		<div class="grid gap-4 md:grid-cols-3 md:grid-rows-2">
+		<div class="grid grid-cols-[minmax(0,1fr)] gap-4 md:grid-cols-3 md:grid-rows-2">
 			<!-- Arctic gross, zwei Reihen hoch -->
 			<button
 				class="group relative overflow-hidden rounded-2xl border border-line text-left md:col-span-2 md:row-span-2"
@@ -315,7 +315,7 @@
 
 	<!-- BENTO -->
 	<section class="mx-auto max-w-7xl px-6 pb-20">
-		<div class="grid gap-4 md:grid-cols-6 md:grid-rows-[280px_280px]">
+		<div class="grid grid-cols-[minmax(0,1fr)] gap-4 md:grid-cols-6 md:grid-rows-[280px_280px]">
 			<!-- Licht: großes Bild -->
 			<div
 				class="relative min-h-[260px] overflow-hidden rounded-2xl border border-line md:col-span-4"
@@ -345,7 +345,7 @@
 
 			<!-- Sound -->
 			<div
-				class="flex flex-col justify-between rounded-2xl border border-line bg-surface/60 p-6 md:col-span-2"
+				class="flex min-w-0 flex-col justify-between rounded-2xl border border-line bg-surface/60 p-6 md:col-span-2"
 			>
 				<div class="flex h-16 items-end gap-1">
 					{#each { length: 18 } as _, i (i)}
@@ -365,13 +365,13 @@
 			</div>
 
 			<!-- Layouts aus echten Daten -->
-			<div class="rounded-2xl border border-line bg-surface/60 p-6 md:col-span-2">
+			<div class="min-w-0 rounded-2xl border border-line bg-surface/60 p-6 md:col-span-2">
 				<h3 class="font-display text-xl font-bold text-ink">Vier Layouts.</h3>
 				<p class="mt-1 text-sm text-ink-muted">Von 61 bis 87 Tasten. Deutsch oder Englisch.</p>
 				<div class="mt-4 grid grid-cols-2 gap-3">
 					{#each baseKits as kit (kit.id)}
-						<div class="text-neon">
-							<LayoutSilhouette size={kit.layout} class="w-full" />
+						<div class="min-w-0 text-neon">
+							<LayoutSilhouette size={kit.layout} class="h-auto w-full" />
 							<p class="mt-1 font-mono text-[10px] text-ink-faint">{kit.layout} · {kit.keyCount}</p>
 						</div>
 					{/each}
@@ -380,10 +380,14 @@
 
 			<!-- Preis -->
 			<div
-				class="flex flex-col justify-between rounded-2xl border border-line bg-brand p-6 text-void md:col-span-2"
+				class="flex min-w-0 flex-col justify-between rounded-2xl border border-line bg-brand p-6 text-void md:col-span-2"
 			>
 				<p class="font-mono text-[10px] tracking-[0.2em] uppercase opacity-80">Ab</p>
-				<p class="font-display text-5xl font-extrabold tracking-tight">{formatPrice(fromPrice)}</p>
+				<p
+					class="font-display text-[clamp(26px,8.5vw,48px)] font-extrabold tracking-tight whitespace-nowrap"
+				>
+					{formatPrice(fromPrice)}
+				</p>
 				<p class="text-sm opacity-90">
 					Jede Option rechnet sich live in den Preis. An der Kasse steht dieselbe Zahl.
 				</p>
@@ -417,7 +421,7 @@
 			<h2 class="mt-2 font-display text-3xl font-bold text-ink sm:text-4xl">
 				Drei Arten zu tippen.
 			</h2>
-			<div class="mt-8 grid gap-4 md:grid-cols-3">
+			<div class="mt-8 grid grid-cols-[minmax(0,1fr)] gap-4 md:grid-cols-3">
 				{#each switchOptions as sw (sw.id)}
 					<div class="rounded-2xl border border-line bg-void/50 p-6">
 						<svg viewBox="0 0 100 100" class="h-28 w-full" aria-hidden="true">
@@ -491,7 +495,7 @@
 				</span>
 			</div>
 			<pre
-				class="overflow-hidden border-t border-line bg-void/70 p-6 font-mono text-[11px] leading-relaxed text-ink-muted md:border-t-0 md:border-l"><code
+				class="min-w-0 overflow-x-auto border-t border-line bg-void/70 p-6 font-mono text-[11px] leading-relaxed whitespace-pre-wrap text-ink-muted md:border-t-0 md:border-l"><code
 					>{`'Tab:1.5 Q W E R T Y U I O P [ ] \\\\:1.5'
 '⇧=ShiftLeft:2.25 Z X C V B N M , . /'
 

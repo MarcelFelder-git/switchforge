@@ -5,6 +5,7 @@
 <script lang="ts">
 	import { getLayout } from '$lib/data/layouts';
 	import type { LayoutSize } from '$lib/data/catalog';
+	import { cn } from '$lib/utils';
 
 	let { size, class: className = '' }: { size: LayoutSize; class?: string } = $props();
 
@@ -14,7 +15,8 @@
 
 <svg
 	viewBox={`0 0 ${layout.width} ${layout.depth}`}
-	class={className}
+	class={cn('block h-auto', className)}
+	style:aspect-ratio={`${layout.width} / ${layout.depth}`}
 	role="img"
 	aria-label={`${size} Layout`}
 >

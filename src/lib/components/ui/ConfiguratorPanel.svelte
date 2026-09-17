@@ -74,7 +74,7 @@
 		<div class="grid grid-cols-2 gap-2">
 			{#each baseKits as kit (kit.id)}
 				<button
-					class={cn(option, 'px-3 py-2.5', builder.baseKitId === kit.id ? active : idle)}
+					class={cn(option, 'min-w-0 px-3 py-2.5', builder.baseKitId === kit.id ? active : idle)}
 					aria-pressed={builder.baseKitId === kit.id}
 					onclick={() => builder.setBaseKit(kit.id)}
 				>

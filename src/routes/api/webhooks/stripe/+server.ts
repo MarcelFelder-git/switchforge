@@ -18,7 +18,7 @@ import type { RequestHandler } from './$types';
 
 export const POST: RequestHandler = async ({ request }) => {
 	const signature = request.headers.get('stripe-signature');
-	const secret = env.STRIPE_WEBHOOK_SECRET;
+	const secret = env.STRIPE_WEBHOOK_SECRET?.trim();
 	if (!signature || !secret) {
 		error(400, 'Fehlende Stripe-Signatur oder Webhook-Secret');
 	}
